@@ -1707,9 +1707,9 @@
         try{ oldPRU = JSON.parse(boxU.dataset.productRect || 'null'); }catch(_){ oldPRU = null; }
         var prectU0 = e.data.productRect || null;
         /* 更新 productRect（商品範圍不含影子）和 imageRatio（完整圖片含影子）。
-           單純換背景／影子換色時 preserveFrame=true，必須連舊 productRect 也保留；
-           否則就算外框 left/top/width/height 沒變，商品本體仍會在框內縮放／位移而閃跳。 */
-        if(e.data.productRect && !e.data.preserveFrame){
+           preserveFrame 只代表外框 left/top/width/height 不可動；新影子圖仍須使用
+           自己的 productRect，才能把新圖裡的商品本體精準對齊原外框。 */
+        if(e.data.productRect){
           boxU.dataset.productRect = JSON.stringify(e.data.productRect);
           boxU.dataset.ratio = String(e.data.productRect.w / Math.max(1, e.data.productRect.h));
         }
@@ -1718,10 +1718,20 @@
         if(imgU && e.data.src){
           if(e.data.preserveFrame){
             /* 換背景後重烘商品影子只會改圖片像素，不是一次新的商品編輯。
-               完整保留目前框的 left/top/width/height、手動排版與 CSS 預覽狀態；
-               圖片載入後只依新的 productRect 對齊框內商品本體。尤其不能沿用
-               keepScale 的旋轉外接框算法，否則每次換背景都會重新算尺寸與中心點。 */
-            imgU.onload = function(){ bnProductImgLoaded(imgU); };
+               先保存外框的完整 inline 狀態；圖片載入後只更新框內圖像對齊，再把
+               外框狀態原樣放回，避免任何非同步 onload／ResizeObserver 路徑改到
+               使用者已編輯的位置、大小、旋轉、層級或手動排版旗標。 */
+            var frameStyleU = boxU.getAttribute('style');
+            var frameClassU = boxU.className;
+            var manualLayoutU = boxU.dataset.manualLayout;
+            imgU.onload = function(){
+              bnProductImgLoaded(imgU);
+              if(frameStyleU === null) boxU.removeAttribute('style'); else boxU.setAttribute('style', frameStyleU);
+              boxU.className = frameClassU;
+              if(manualLayoutU === undefined) delete boxU.dataset.manualLayout;
+              else boxU.dataset.manualLayout = manualLayoutU;
+              if(imgU._bnFit) bnLayoutProductImg(imgU);
+            };
             imgU.src = e.data.src;
           }else if(e.data.keepScale && imgU.naturalWidth && imgU.naturalHeight){
             /* 旋轉後換圖：新圖外接矩形變大，若框維持原尺寸、object-fit:contain 會把商品
