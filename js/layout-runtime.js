@@ -1706,8 +1706,10 @@
         var oldPRU = null;
         try{ oldPRU = JSON.parse(boxU.dataset.productRect || 'null'); }catch(_){ oldPRU = null; }
         var prectU0 = e.data.productRect || null;
-        /* 更新 productRect（商品範圍不含影子）和 imageRatio（完整圖片含影子） */
-        if(e.data.productRect){
+        /* 更新 productRect（商品範圍不含影子）和 imageRatio（完整圖片含影子）。
+           單純換背景／影子換色時 preserveFrame=true，必須連舊 productRect 也保留；
+           否則就算外框 left/top/width/height 沒變，商品本體仍會在框內縮放／位移而閃跳。 */
+        if(e.data.productRect && !e.data.preserveFrame){
           boxU.dataset.productRect = JSON.stringify(e.data.productRect);
           boxU.dataset.ratio = String(e.data.productRect.w / Math.max(1, e.data.productRect.h));
         }
