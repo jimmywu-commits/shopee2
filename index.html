@@ -254,12 +254,14 @@ html, body { height: 100%; background: var(--bg0); color: var(--text);
 .preview-block-head .pname { font-weight: 700; flex: 1; }
 .preview-block-head .psize { color: var(--text3); font-size: 10px; font-family: monospace; }
 .bn-layout-lock {
-  flex: 0 0 auto; width: 26px; height: 24px; padding: 2px;
+  flex: 0 0 auto; min-width: 26px; height: 24px; padding: 2px 6px;
   display: inline-flex; align-items: center; justify-content: center;
+  gap: 5px; white-space: nowrap;
   border: 1px solid transparent; border-radius: 5px;
   background: transparent; color: var(--accent2); cursor: pointer;
   transition: .15s;
 }
+.bn-layout-lock-label { font-size: 10px; font-weight: 700; line-height: 1; }
 .bn-layout-lock:hover { background: rgba(56,139,253,.12); border-color: var(--accent2); }
 .bn-layout-lock-icon { position: relative; display: block; width: 19px; height: 16px; }
 .bn-layout-lock-icon::before,
@@ -394,6 +396,10 @@ html[data-host="boda"] #lv-wrap { display:block; }
   font-weight: 600; padding: 6px 8px; outline: none; cursor: pointer;
 }
 #lv-wrap select:focus { border-color: var(--accent); }
+#lv-wrap select:disabled {
+  background: #e5e7eb; border-color: #cbd5e1; color: #6b7280;
+  cursor: not-allowed; opacity: 1;
+}
 #lv-note { font-size: 10px; color: var(--text3); line-height: 1.6; margin-top: 5px; }
 #lv-note.warn { color: var(--yellow); }
 .layout-check-item.lc-missing { opacity: .45; cursor: not-allowed; }
@@ -787,7 +793,7 @@ html.boda-hosted #shopee-tour-launch{display:none!important;}
 
         <!-- 等級下拉（BODA 模式由 boda-level-plugin.js 填入） -->
         <div class="s-section" id="lv-section" style="display:none">等級</div>
-        <div id="lv-wrap"><select id="lv-select"></select><div id="lv-note"></div></div>
+        <div id="lv-wrap"><select id="lv-select" disabled aria-disabled="true" title="活動等級由工單決定，曝光資源僅供查看"></select><div id="lv-note"></div></div>
         <script>if(IS_BODA){var _ls=document.getElementById('lv-section');if(_ls)_ls.style.display='';}</script>
 
         <!-- 文字 + 顏色 inline -->
@@ -1509,6 +1515,8 @@ function bnRefreshProductLayoutLockUI() {
     btn.setAttribute('aria-pressed', linked ? 'true' : 'false');
     btn.setAttribute('aria-label', linked ? '已連動，點擊解除此版位連動' : '未連動，點擊加入全部版位連動');
     btn.title = linked ? '已連動：點擊後此版位獨立編輯' : '未連動：點擊後重新加入全部版位連動';
+    var label = btn.querySelector('.bn-layout-lock-label');
+    if(label) label.textContent = linked ? '版位連動' : '獨立編輯';
   });
 }
 window._bnRefreshProductLayoutLockUI = bnRefreshProductLayoutLockUI;
@@ -1573,7 +1581,7 @@ function renderPreviews() {
       lockButton.type = 'button';
       lockButton.className = 'bn-layout-lock';
       lockButton.dataset.layoutId = String(l.id);
-      lockButton.innerHTML = '<span class="bn-layout-lock-icon" aria-hidden="true"></span>';
+      lockButton.innerHTML = '<span class="bn-layout-lock-icon" aria-hidden="true"></span><span class="bn-layout-lock-label">版位連動</span>';
       lockButton.addEventListener('click', function(ev){ bnToggleProductLayoutLock(l.id, ev); });
       block.querySelector('.preview-block-head').appendChild(lockButton);
     }

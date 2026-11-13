@@ -509,6 +509,35 @@
       if(endorserMigrationSourceId() !== String(id)) return;
       broadcastTo(id, {type:'bn-endorser-repost'});
     }
+    /* 延遲載入的 BN 要跟商品圖一樣，建立 iframe 時就先取得已編輯的
+       代言人大小／位置，不能因為當時還沒有畫出就回到預設值。 */
+    function hydrateEndorserLayoutForReadyFrame(id){
+      var key=String(id||'');
+      if(!key||!endorserLayoutSupported(key)||!productLayoutIsLocked(key))return false;
+      var changed=false;
+      ENDORSER_SLOTS.forEach(function(slotKey){
+        var slot=window[slotKey];if(!slot)return;
+        if(!slot.layouts)slot.layouts={};
+        if(slot.layouts[key])return;
+        var ref=endorserMasterSourceFor(slot,key)||findLockedProductLayout(slot,key);
+        if(!ref||!ref.layout)return;
+        slot.layouts[key]=productLayoutForTarget(ref.layout,ref.id,key);
+        changed=true;
+      });
+      var note=window._bnEndorserNote;
+      if(note&&note.text){
+        if(!note.layouts)note.layouts={};
+        if(!note.layouts[key]){
+          var noteRef=endorserMasterSourceFor(note,key)||findLockedProductLayout(note,key);
+          if(noteRef&&noteRef.layout){
+            note.layouts[key]=productLayoutClone(noteRef.layout);
+            changed=true;
+          }
+        }
+      }
+      if(changed)markStateDirty();
+      return changed;
+    }
 
     /* Logo 版型自動切換：
        - 只有 1 顆且高 >= 寬：有方／橫雙版本的版位一律選方版、取消橫版。
@@ -625,7 +654,14 @@
       var manualRevision = Number(window._bnLogoLayoutManualRevision) || 0;
       var logos = window._bnLogos || [];
       applyNoLogoLayoutSelection(logos.length > 0);
-      if(!logos.length) return Promise.resolve(false);
+      if(!logos.length){
+        /* BODA 的 LPBN 一般版同時承擔方 Logo／無 Logo；沒有 Logo 時
+           也要通知等級外掛收旂同組其他變體。 */
+        if(typeof window.bnAutoSelectLogoVariant === 'function'){
+          return Promise.resolve(!!window.bnAutoSelectLogoVariant('none', true));
+        }
+        return Promise.resolve(false);
+      }
       if(logos.length > 1) return Promise.resolve(applyLogoLayoutVariant('horizontal'));
 
       var logo = logos[0];
@@ -4725,7 +4761,8 @@
         broadcastTo(id, {type:'bn-character-visibility', hasChar: productLimitActive(),
           maxVisible: maxVisibleReady, visibleIds: visibleIdsReady,
           topId: visibleIdsReady.length ? visibleIdsReady[0] : null});
-        /* 代言人：新 iframe 就緒後也要補送；舊版暫存由 HBN／LPBN 用新規則重報一次 */
+        /* 代言人：新 iframe 就緒後也要補送；先把已編輯的大小／位置補進這個 BN。 */
+        hydrateEndorserLayoutForReadyFrame(id);
         sendEndorserStateTo(function(msg){ broadcastTo(id, msg); }, false);
         requestEndorserMigrationIfNeeded(id);
         /* 兩個人物的前後順序也要補送給新就緒的 iframe */
