@@ -166,25 +166,22 @@
     window._bnEndorserSign = window._bnEndorserSign || null;
     window._bnEndorserNote = window._bnEndorserNote || {text:'', color:'', layouts:{}};
 
-    /* 取得目前人物數量(0/1/2)，供商品可見度規則使用 */
-    function getCharacterCount(){
-      return (window._bnCharacter?1:0) + (window._bnCharacter2?1:0);
-    }
+    /* 曝光資源已移除一般人物圖上傳；保留舊訊息相容，但不計入新排版。 */
+    function getCharacterCount(){ return 0; }
     function hasEndorserImage(){
       return !!(window._bnEndorserPhoto || window._bnEndorserSign);
     }
-    /* 人物圖或代言人存在時，商品才要限制顯示件數 */
-    function productLimitActive(){
-      return getCharacterCount() > 0 || hasEndorserImage();
+    function getEndorserImageCount(){
+      return window._bnEndorserPhoto ? 1 : 0;
     }
-    /* 依人物數量換算商品最多能顯示幾張：0張人物->3(全開)，1張->2，2張->0。
-       代言人照＋簽名檔「取代 2 品」：有代言人時最多 1 件，再加人物圖就 0 件。 */
+    /* 只有代言人照占品數；簽名檔不限制商品顯示件數。 */
+    function productLimitActive(){
+      return getEndorserImageCount() > 0;
+    }
+    /* 商品與代言人照各算 1 品，合計最多 3 品；簽名檔、代言人小字不占品數。
+       有代言人照時可顯示 2 件商品；只有簽名檔時仍可顯示 3 件。 */
     function getMaxProductsVisible(){
-      var n = getCharacterCount();
-      if(hasEndorserImage()) return n === 0 ? 1 : 0;
-      if(n === 0) return 999;
-      if(n === 1) return 2;
-      return 0;
+      return Math.max(0, 3 - getEndorserImageCount());
     }
 
     /* ── 工具 ── */
@@ -1504,7 +1501,7 @@
       if(!slot){ if(done) done(); return Promise.resolve(); }
       var keepScale = !(opts && opts.keepScale === false);
       if(!window._bnGroundShadow){
-        return loadScriptOnce('js/bn-shadow-plugin.js').then(function(){ return setEndorserRotation(slotKey, deg, done, opts); })['catch'](function(){
+        return loadScriptOnce('js/bn-shadow-plugin.js?v=20261113-solid-body').then(function(){ return setEndorserRotation(slotKey, deg, done, opts); })['catch'](function(){
           alert('bn-shadow-plugin.js 載入失敗');
           if(done) done();
         });
@@ -1974,11 +1971,6 @@
         '<div class="bn-section">',
         '  <button id="bn-prod-open-btn">＋ 上傳商品圖</button>',
         '  <div class="bn-prod-list" id="bn-prod-list"></div>',
-        '  <button id="bn-char-open-btn" style="margin-top:6px">＋ 上傳人物圖1</button>',
-        '  <input type="file" id="bn-char-inp" accept="image/*" style="display:none">',
-        '  <button id="bn-char2-open-btn" style="margin-top:6px">＋ 上傳人物圖2</button>',
-        '  <input type="file" id="bn-char2-inp" accept="image/*" style="display:none">',
-        '  <div id="bn-char-hint" style="display:none;font-size:10px;color:var(--text3,#6e7681);margin-top:4px;line-height:1.5">已上傳 1 張人物圖：商品圖最多只會顯示「目前最上層」的 2 件，其餘暫時隱藏；上傳第 2 張人物圖後，商品圖會完全不顯示。移除人物圖後會自動恢復顯示。人物圖卡片會顯示在上方清單裡，跟目前最上層的商品一起排前後順序。</div>',
         '</div>',
         '<div class="s-section" style="margin-top:8px">代言人（照片＋簽名檔，不加影子）</div>',
         '<div class="bn-section" id="bn-endorser-section">',
@@ -1994,7 +1986,7 @@
         '    <textarea id="bn-endorser-note-inp" rows="2" data-limit="10" placeholder="最多 10 字，每排 5 字（Enter 換第二排）"></textarea>',
         '    <div class="bn-endorser-note-color"><span>字色</span><button type="button" id="bn-endorser-note-auto" class="on" title="依小字底下的顏色自動用黑字或白字（同 MSBN）">自動黑白</button><input type="color" id="bn-endorser-note-color" value="#111827" title="手動指定字色"></div>',
         '  </div>',
-        '  <div id="bn-endorser-hint" class="bn-endorser-hint">有代言人照或簽名檔時，商品圖只顯示目前最上層的 1 件（代言人照＋簽名檔取代 2 品）。只放在 ddcard、IG、HBN、LPBN、Coin、FB POST、SCBN、活動總覽、SBA、AMS。代言人照、簽名檔、小字各自拖曳；簽名檔和小字以代言人照為基準連動到其他版位，三者在每個版位都一樣靠近。</div>',
+        '  <div id="bn-endorser-hint" class="bn-endorser-hint">商品與代言人照各算 1 品，合計最多 3 品；簽名檔、代言人小字不占品數。有代言人照時可顯示 2 件商品；只有簽名檔時仍可顯示 3 件商品。只放在 ddcard、IG、HBN、LPBN、Coin、FB POST、SCBN、活動總覽、SBA、AMS。代言人照、簽名檔、小字各自拖曳；簽名檔和小字以代言人照為基準連動到其他版位，三者在每個版位都一樣靠近。</div>',
         '</div>',
         '<div class="s-section" style="margin-top:8px">背景圖</div>',
         '<div class="bn-section">',
@@ -2012,8 +2004,6 @@
       if(target)scroll.insertBefore(sec,target);else scroll.appendChild(sec);
       document.getElementById('bn-prod-open-btn').addEventListener('click',openModal);
       buildModal();
-      initCharacterUpload('_bnCharacter');
-      initCharacterUpload('_bnCharacter2');
       initEndorserUpload('_bnEndorserPhoto');
       initEndorserUpload('_bnEndorserSign');
       initEndorserNoteUI();
@@ -2368,6 +2358,7 @@
         if(!panelEl) return;
         panelEl.querySelectorAll('[data-fit]').forEach(function(btn){
           var active = btn.dataset.fit === fitVal || btn.dataset.fit === 'auto' && fitVal !== 'cover';
+          btn.classList.toggle('on', active); /* UI-003 2D: BODA 嵌入模式以 .on 套用選中配色；不改下方 inline 邏輯 */
           btn.style.background = active ? '#1f6feb' : 'rgba(255,255,255,.06)';
           btn.style.color = active ? '#fff' : '#8b9dbf';
         });
@@ -3216,6 +3207,10 @@
         if(item.meta) prod.meta = JSON.parse(JSON.stringify(item.meta));
         /* 新上傳的商品：自動合成貼地陰影（bn-shadow-plugin.js）。
            baseSrc 保留去背/裁切後的原圖，src 換成「原圖＋影子」。 */
+        if(!item.fromExisting && !window._bnGroundShadow){
+          /* 影子外掛按需載入：還沒載入就先載，不然新商品沒有影子也沒有商品本體範圍 */
+          try{ await loadScriptOnce('js/bn-shadow-plugin.js?v=20261113-solid-body'); }catch(err){ console.warn('[bn-editor] 影子外掛載入失敗', err); }
+        }
         if(!item.fromExisting && window._bnGroundShadow){
           try{
             prod.baseSrc = src;
@@ -3540,16 +3535,21 @@
       if(!replaceLogos && !replaceProducts && !replaceEndorser && !endorserNoteText) return Promise.resolve(false);
 
       var seq = ++_bnWorkorderAssetApplySeq;
-      var productJobs = replaceProducts ? Promise.all(products.map(function(item){
+      /* 影子外掛是按需載入的：工單商品進來時若還沒載入，以前就直接用 BODA 傳來的圖（已烘活動頁影子），
+         也沒有 productRect，選取框／移動範圍會變成整張圖（連影子、留白一起框）。先載入再處理。 */
+      var shadowReady = replaceProducts && !window._bnGroundShadow
+        ? loadScriptOnce('js/bn-shadow-plugin.js?v=20261113-solid-body')['catch'](function(err){ console.warn('[bn-editor] 影子外掛載入失敗', err); })
+        : Promise.resolve();
+      var productJobs = replaceProducts ? shadowReady.then(function(){ return Promise.all(products.map(function(item){
         return workorderAssetRatio(item.src).then(function(ratio){
-          /* 工單匯入的商品也自動合成貼地陰影（失敗就用原圖） */
+          /* 工單匯入的商品也自動合成貼地陰影：以 baseSrc（沒有影子的原圖）重新合成，商品本體範圍才正確（失敗就用原圖） */
           if(!window._bnGroundShadow) return { item:item, ratio:ratio };
           var tmp = { src:item.src, baseSrc:item.baseSrc || item.src, ratio:ratio, meta:{} };
           return window._bnGroundShadow.applyToProduct(tmp, window._bnGroundShadow.DEFAULT)
             .then(function(){ return { item:item, ratio:tmp.ratio, src:tmp.src, baseSrc:tmp.baseSrc, meta:tmp.meta }; })
             .catch(function(err){ console.warn('[bn-editor] 工單商品影子合成失敗', err); return { item:item, ratio:ratio }; });
         });
-      })) : Promise.resolve([]);
+      })); }) : Promise.resolve([]);
 
       /* LOGO 比例要量實際圖片：BODA 傳來的素材沒有 ratio，若直接用 1 會永遠判成方版。 */
       var logoJobs = replaceLogos ? Promise.all(logos.map(function(item){
@@ -3665,7 +3665,7 @@
       var p=window._bnProducts.find(function(x){return x.id===pid;});
       if(!p)return;
       if(!window._bnGroundShadow){
-        loadScriptOnce('js/bn-shadow-plugin.js').then(function(){ openGroundShadowEditor(pid); })['catch'](function(){ alert('bn-shadow-plugin.js 載入失敗'); });
+        loadScriptOnce('js/bn-shadow-plugin.js?v=20261113-solid-body').then(function(){ openGroundShadowEditor(pid); })['catch'](function(){ alert('bn-shadow-plugin.js 載入失敗'); });
         return;
       }
       window._bnGroundShadow.openEditor(p, function(){
@@ -3687,7 +3687,7 @@
       var p=window._bnProducts.find(function(x){return x.id===pid;});
       if(!p){ if(done) done(); return Promise.resolve(); }
       if(!window._bnGroundShadow){
-        var loadJob = loadScriptOnce('js/bn-shadow-plugin.js').then(function(){ return setProductRotation(pid, deg, done, rotationAnchorMode); })['catch'](function(){
+        var loadJob = loadScriptOnce('js/bn-shadow-plugin.js?v=20261113-solid-body').then(function(){ return setProductRotation(pid, deg, done, rotationAnchorMode); })['catch'](function(){
           alert('bn-shadow-plugin.js 載入失敗');
           if(done) done();
         });
@@ -4037,6 +4037,16 @@
         return;
       }
 
+      /* 版位 iframe 是捲到附近才載入：下載前先把還沒載入的勾選版位都載好，再重新進來。 */
+      if(typeof window._bnPendingPreviewCount==='function' && window._bnPendingPreviewCount()>0 &&
+         typeof window._bnLoadAllPreviews==='function'){
+        if(typeof window.bnShowDownloadOverlay==='function') window.bnShowDownloadOverlay('正在載入其他版位，載完就開始下載…');
+        window._bnLoadAllPreviews().then(function(){
+          /* 剛載入的版位要等一下才收到商品、LOGO、背景等狀態 */
+          setTimeout(function(){ downloadAll(_layoutSynced); }, 800);
+        });
+        return;
+      }
       /* 多圖恢復 ZIP：1 張直接 PNG；2 張以上先逐張截圖，最後打包 ZIP。 */
       var iframes=Array.from(document.querySelectorAll('.preview-block iframe'));
       if(!iframes.length){setProgress('沒有版位可下載');_bnSettleCollect(new Error('曝光資源沒有勾選任何版位'));return;}

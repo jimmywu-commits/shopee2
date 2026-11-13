@@ -1530,21 +1530,28 @@ function renderPreviews() {
     if (_hashKw.length) return matchHashKeywords(l.file || l.name || '', _hashKw);
     return getLayoutCheckedValue(l);
   });
+  /* BODA 匯入工單後，依「工單總覽」版位欄的由上到下順序排列。
+     獨立開啟 Shopee 編輯器時沒有這個 hook，維持原本掃描順序。 */
+  if (typeof window._bnSortLayoutsForDisplay === 'function') {
+    try { layouts = window._bnSortLayoutsForDisplay(layouts) || layouts; } catch (_) {}
+  }
   var area  = document.getElementById('preview-area');
   var empty = document.getElementById('preview-empty');
 
   area.querySelectorAll('.preview-block').forEach(function(el){ el.remove(); });
 
-  if (!layouts.length) { empty.style.display = 'block'; bnHidePreviewLoading(); return; }
+  if (!layouts.length) { empty.style.display = 'block'; bnLazyReset(); bnHidePreviewLoading(); return; }
   empty.style.display = 'none';
-  bnStartPreviewLoading(layouts);
+  bnLazyReset();
 
   layouts.forEach(function(l) {
     var block = document.createElement('div');
     block.className = 'preview-block';
     block.dataset.id = l.id;
 
-    /* 先用佔位尺寸建立結構，onload 後再正確設定 */
+    /* 版位 iframe 不一次全開：先放佔位（依已知尺寸預留高度），捲到附近才載入（bnLazyActivate）。
+       每個版位 iframe 都會各自解碼商品／LOGO／代言人圖，二三十個同時開很吃記憶體。 */
+    var placeholderH = (l.w && l.h) ? Math.round(l.h * Math.min(PREVIEW_MAX / l.w, PREVIEW_MAX / l.h, 1)) : 120;
     block.innerHTML =
       '<div class="preview-block-head">' +
         '<span class="pname">' + esc(l.name) + '</span>' +
@@ -1552,10 +1559,10 @@ function renderPreviews() {
           (l.w ? l.w + ' × ' + l.h + ' px' : '讀取尺寸中…') +
         '</span>' +
       '</div>' +
-      '<div class="preview-block-body" id="pbody-' + l.id + '" style="min-height:40px">' +
+      '<div class="preview-block-body" id="pbody-' + l.id + '" style="min-height:' + Math.max(40, placeholderH) + 'px">' +
         '<iframe id="iframe-' + l.id + '"' +
           /* 每次重建 iframe 都帶時間戳，避免一般瀏覽器沿用舊版排版 HTML。 */
-          ' src="html/' + l.file + '?bnid=' + l.id + '&t=' + Date.now() + '"' +
+          ' data-bn-src="html/' + l.file + '?bnid=' + l.id + '&t=' + Date.now() + '"' +
           ' style="border:none;display:block;transform-origin:top left;visibility:hidden"' +
           ' onload="onIframeLoad(' + l.id + ')">' +
         '</iframe>' +
@@ -1574,7 +1581,81 @@ function renderPreviews() {
     area.appendChild(block);
   });
   bnRefreshProductLayoutLockUI();
+  bnLazyStart(layouts);
 }
+
+/* ── 版位 iframe 延遲載入 ─────────────────────────────
+   畫面上（含上下 800px）的版位先載入並顯示載入遮罩；其他的捲到附近才載入。
+   下載全部、取得所有版位的資料前，用 window._bnLoadAllPreviews() 先把剩下的都載完。 */
+var bnLazyObserver = null;
+var bnLazyReadyIds = {};
+var bnLazyWaiters = [];
+function bnLazyReset() {
+  if (bnLazyObserver) { try { bnLazyObserver.disconnect(); } catch (_) {} }
+  bnLazyObserver = null;
+  bnLazyReadyIds = {};
+}
+function bnLazyPendingFrames() {
+  return Array.prototype.slice.call(document.querySelectorAll('.preview-block iframe[data-bn-src]'));
+}
+function bnLazyActivate(iframe) {
+  if (!iframe || !iframe.getAttribute('data-bn-src')) return;
+  var src = iframe.getAttribute('data-bn-src');
+  iframe.removeAttribute('data-bn-src');
+  if (bnLazyObserver) { try { bnLazyObserver.unobserve(iframe); } catch (_) {} }
+  iframe.setAttribute('src', src);
+}
+function bnLazyStart(layouts) {
+  var area = document.getElementById('preview-area');
+  var frames = bnLazyPendingFrames();
+  /* 頁面被隱藏（BODA 在別的頁）時量不到位置：先不載入，顯示後由 IntersectionObserver 接手 */
+  var visible = !!(area && area.getClientRects().length && area.offsetHeight > 0);
+  var initial = [];
+  if (visible) {
+    var limit = (window.innerHeight || 800) + 800;
+    frames.forEach(function (iframe) {
+      var top = iframe.parentNode.getBoundingClientRect().top;
+      if (top < limit) initial.push(iframe);
+    });
+  }
+  var initialIds = {};
+  initial.forEach(function (iframe) { initialIds[iframe.id.replace(/^iframe-/, '')] = true; });
+  bnStartPreviewLoading(layouts.filter(function (l) { return initialIds[String(l.id)]; }));
+  initial.forEach(bnLazyActivate);
+  if (typeof IntersectionObserver !== 'function') { bnLazyPendingFrames().forEach(bnLazyActivate); return; }
+  bnLazyObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) bnLazyActivate(entry.target);
+    });
+  }, { root: null, rootMargin: '800px 0px 800px 0px' });
+  bnLazyPendingFrames().forEach(function (iframe) { bnLazyObserver.observe(iframe); });
+}
+function bnLazyMarkReady(id) {
+  bnLazyReadyIds[String(id)] = true;
+  bnLazyWaiters = bnLazyWaiters.filter(function (w) { return !w(); });
+}
+/* 還沒載入的版位數 */
+window._bnPendingPreviewCount = function () { return bnLazyPendingFrames().length; };
+/* 把所有勾選版位都載入，等它們都就緒（逾時 45 秒也照樣繼續）。 */
+window._bnLoadAllPreviews = function () {
+  var pending = bnLazyPendingFrames();
+  if (!pending.length) return Promise.resolve();
+  var ids = pending.map(function (iframe) { return iframe.id.replace(/^iframe-/, ''); });
+  pending.forEach(bnLazyActivate);
+  return new Promise(function (resolve) {
+    var done = false;
+    function check() {
+      if (done) return true;
+      if (ids.every(function (id) { return bnLazyReadyIds[id] || !document.getElementById('iframe-' + id); })) {
+        done = true; resolve(); return true;
+      }
+      return false;
+    }
+    if (check()) return;
+    bnLazyWaiters.push(check);
+    setTimeout(function () { if (!done) { done = true; resolve(); } }, 45000);
+  });
+};
 
 /* iframe 載入完成：
    1. 從 iframe CSS 讀 --canvas-w / --canvas-h
@@ -1989,6 +2070,7 @@ window.addEventListener('message', function (e) {
     var iframe = document.getElementById('iframe-' + id);
     if (!iframe) return;
     bnMarkPreviewReady(id);
+    bnLazyMarkReady(id);
 
     var scale = Math.min(PREVIEW_MAX / W, PREVIEW_MAX / H, 1);
     iframe.dataset.bnBaseWidth=String(W);
@@ -3747,9 +3829,9 @@ window.loadCheckedByFile  = function(){
    動態插入的 script 預設是非同步、載入完成順序不保證，一定要手動關掉。 */
 (function(){
   var _t = Date.now();
-  var plugins = IS_BODA
-    ? ['js/bn-shadow-plugin.js','js/bn-editor-plugin.js','js/bn-state-plugin.js','js/bn-workorder-upload-plugin.js','js/bn-bg-library-plugin.js','js/bn-whatsnew-plugin.js']
-    : ['js/logo-autotrim-plugin.js','js/bn-shadow-plugin.js','js/bn-editor-plugin.js','js/bn-state-plugin.js','js/bn-workorder-upload-plugin.js','js/bn-bg-library-plugin.js','js/bn-whatsnew-plugin.js'];
+  /* 陰影編輯器與 Logo 去白邊已由 bn-editor-plugin 在首次使用時載入，
+     首頁不必先下載。其餘外掛仍照原順序啟動。 */
+  var plugins = ['js/bn-editor-plugin.js','js/bn-state-plugin.js','js/bn-workorder-upload-plugin.js','js/bn-bg-library-plugin.js','js/bn-whatsnew-plugin.js'];
   plugins.forEach(function(src){
     var s = document.createElement('script');
     s.src = src + '?t=' + _t;
@@ -3770,7 +3852,7 @@ window.loadCheckedByFile  = function(){
 
 <!-- IG Shopee Logo Card Overlay -->
 <img id="ig-shopee-logo-card"
-     src="img/ig-shopee-logo-card.png"
+     src="html/img/ig-shopee-logo-card.png"
      style="position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;display:none;z-index:9998;">
 
 <script>

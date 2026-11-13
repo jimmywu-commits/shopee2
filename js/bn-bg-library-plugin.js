@@ -1668,12 +1668,8 @@
 
   installBgColorSamplingHooks();
 
-  /* 頁面載好後偷偷預載 index.json + brand.json，打開圖庫時就不用等 */
-  function preloadBgData(){
-    setTimeout(function(){ loadImages().catch(function(){}); }, 1500);
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', preloadBgData);
-  else preloadBgData();
+  /* 圖庫資料只在第一次打開圖庫或套用公版背景時載入，避免閒置頁面
+     額外請求兩份清單；openModal()/findCardByPublicCode() 會負責按需載入。 */
 
   window.BNBgLibrary = {
     open: openModal,

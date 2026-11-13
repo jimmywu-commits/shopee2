@@ -13,7 +13,7 @@
   'use strict';
 
   var DEFAULTS = {
-    imageUrl: 'https://github.com/jimmywu-commits/rd/blob/main/%E7%A8%8B%E5%BC%8F%E6%AA%94%E6%A1%88/floating_manual.jpg?raw=true',
+    imageUrl: '程式檔案/floating_manual.jpg',
     label: '說明書',
     buttonAriaLabel: '說明書',
     autoInit: true,

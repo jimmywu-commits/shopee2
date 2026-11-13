@@ -1714,7 +1714,14 @@
         if(e.data.ratio !== undefined) boxU.dataset.imageRatio = String(e.data.ratio);
         var imgU = boxU.querySelector('img');
         if(imgU && e.data.src){
-          if(e.data.keepScale && imgU.naturalWidth && imgU.naturalHeight){
+          if(e.data.preserveFrame){
+            /* 換背景後重烘商品影子只會改圖片像素，不是一次新的商品編輯。
+               完整保留目前框的 left/top/width/height、手動排版與 CSS 預覽狀態；
+               圖片載入後只依新的 productRect 對齊框內商品本體。尤其不能沿用
+               keepScale 的旋轉外接框算法，否則每次換背景都會重新算尺寸與中心點。 */
+            imgU.onload = function(){ bnProductImgLoaded(imgU); };
+            imgU.src = e.data.src;
+          }else if(e.data.keepScale && imgU.naturalWidth && imgU.naturalHeight){
             /* 旋轉後換圖：新圖外接矩形變大，若框維持原尺寸、object-fit:contain 會把商品
                看起來縮小。這裡以「舊圖實際顯示倍率」等比換算新框，並以原中心點定位，
                商品視覺大小不變，只是框跟著外接矩形長大／縮小。 */
@@ -2953,12 +2960,20 @@
     if(on){
       zone.style.background = 'transparent';
       zone.style.opacity = '1';
-      zone.style.border = '2px solid rgba(235,104,119,0.4)';
-      zone.style.boxSizing = 'border-box';
+      /* outline 不參與盒模型；用 border 會讓 SLAB／一般背景互切時改變商品區
+         的內容尺寸與絕對定位原點，既有商品即使沒重排也會視覺位移。 */
+      zone.style.outline = '2px solid rgba(235,104,119,0.4)';
+      zone.style.outlineOffset = '-2px';
+      /* 清掉舊版 runtime 曾留下的 inline border。 */
+      zone.style.border = '';
+      zone.style.boxSizing = '';
       zone.dataset.bnSlabApplied = '1';
     } else if(zone.dataset.bnSlabApplied){
       zone.style.background = '';
       zone.style.opacity = '';
+      zone.style.outline = '';
+      zone.style.outlineOffset = '';
+      /* 向下相容：若狀態是在舊版 runtime 套上的，移除其盒模型樣式。 */
       zone.style.border = '';
       zone.style.boxSizing = '';
       zone.dataset.bnSlabApplied = '';
@@ -5308,8 +5323,24 @@
       el.style.setProperty('background-size',iw+'px '+ih+'px','important');
       el.style.setProperty('background-position',offset(position[0],bw-iw)+'px '+offset(position[1]||'50%',bh-ih)+'px','important');
     }
+    /* 下載鋸齒：html2canvas 預設用低品質縮圖（大商品圖、去背邊、旋轉的圖會有鋸齒，畫面上卻很平滑）。
+       改成 2 倍超取樣＋高品質縮放，再縮回原尺寸；畫布太大時退回 1 倍避免記憶體不足。 */
+    var captureScale=(W*H<=4000000)?2:1;
+    /* 截圖期間新建的 2D 畫布一律用高品質縮放（html2canvas 自己的畫布不會設定），結束後還原。 */
+    function bnWithHighQualitySmoothing(run){
+      var proto=HTMLCanvasElement.prototype,orig=proto.getContext;
+      proto.getContext=function(type){
+        var c=orig.apply(this,arguments);
+        if(c&&String(type)==='2d'){try{c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';}catch(_){}}
+        return c;
+      };
+      function restore(){proto.getContext=orig;}
+      var p;
+      try{p=Promise.resolve(run());}catch(e){restore();return Promise.reject(e);}
+      return p.then(function(v){restore();return v;},function(e){restore();throw e;});
+    }
     function options(layer){return {
-      scale:1,width:W,height:H,windowWidth:Math.max(W,window.innerWidth),windowHeight:Math.max(H,window.innerHeight),
+      scale:captureScale,width:W,height:H,windowWidth:Math.max(W,window.innerWidth),windowHeight:Math.max(H,window.innerHeight),
       scrollX:0,scrollY:0,useCORS:true,allowTaint:false,imageTimeout:8000,logging:false,
       backgroundColor:layer==='foreground'?null:(_bnFixedWhiteBackgroundTemplate||_bnWhiteCanvasUnderCircleTemplate?'#ffffff':null),
       onclone:function(doc){
@@ -5337,11 +5368,13 @@
     function renderLayer(layer){
       if(context.done)return Promise.reject(bnCaptureError('CANCELLED','截圖已結束。','render'));
       bnCaptureProgress(context,'render-'+layer,layer==='main'?'正在截圖…':layer==='background'?'正在整理背景層…':'正在整理商品與文字層…');
-      var job=Promise.resolve().then(function(){return window.html2canvas(cv,options(layer));});
+      var job=Promise.resolve().then(function(){return bnWithHighQualitySmoothing(function(){return window.html2canvas(cv,options(layer));});});
       return bnCaptureWait(job,layer==='main'?15000:7000,bnCaptureError('RENDER_TIMEOUT','截圖引擎處理逾時，請稍後再試。','render-'+layer),context).then(function(rendered){
         if(context.done)throw bnCaptureError('CANCELLED','截圖已結束。','render');
         var out=document.createElement('canvas');out.width=W;out.height=H;
-        var ctx=out.getContext('2d');ctx.drawImage(rendered,0,0,W,H);
+        var ctx=out.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+        ctx.drawImage(rendered,0,0,W,H);
+        if(rendered&&rendered!==out){try{rendered.width=rendered.height=0;}catch(_){}}
         if(layer!=='background')_bnPaintLogoWallShadows(ctx,cv,scale,W,H);
         try{
           var src=out.toDataURL('image/png');if(!src||src==='data:,')throw new Error('empty');return src;

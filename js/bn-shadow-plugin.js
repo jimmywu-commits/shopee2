@@ -119,16 +119,45 @@
     return o;
   }
 
+  /* 商品本體的範圍：只看「實心」像素（alpha ≥ 140）的外框。
+     去背圖常自帶半透明的柔和影子（例如 Photoroom 匯出）或透明留白，若用整張圖當商品範圍，
+     選取框和移動範圍就會連影子一起框進去（活動頁資源的規則是只框商品本體）。
+     縮到最長邊 512 掃描再換算回原尺寸（往外取整，不會切到商品）；找不到實心像素就用整張圖。 */
+  var SOLID_ALPHA = 140;
+  function solidBounds(img, W, H){
+    var full = {x:0, y:0, w:W, h:H};
+    try{
+      var k = Math.min(1, 512 / Math.max(W, H));
+      var sw = Math.max(1, Math.round(W * k)), sh = Math.max(1, Math.round(H * k));
+      var c = document.createElement('canvas'); c.width = sw; c.height = sh;
+      var g = c.getContext('2d'); g.drawImage(img, 0, 0, sw, sh);
+      var d = g.getImageData(0, 0, sw, sh).data;
+      var x0 = sw, y0 = sh, x1 = -1, y1 = -1;
+      for(var y=0;y<sh;y++){
+        for(var x=0;x<sw;x++){
+          if(d[(y*sw+x)*4+3] >= SOLID_ALPHA){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+        }
+      }
+      c.width = c.height = 0;
+      if(x1 < 0) return full;
+      var bx = Math.max(0, Math.floor(x0 / k) - 1), by = Math.max(0, Math.floor(y0 / k) - 1);
+      var bx1 = Math.min(W, Math.ceil((x1 + 1) / k) + 1), by1 = Math.min(H, Math.ceil((y1 + 1) / k) + 1);
+      if(bx1 - bx < 4 || by1 - by < 4) return full;
+      return {x:bx, y:by, w:bx1 - bx, h:by1 - by};
+    }catch(_){ return full; }
+  }
+
   var _seq = 0;
   /* 合成：商品原圖 + 貼地陰影 → canvas（enabled=false 時直接回原圖） */
   function composeCanvas(img, cfg){
     cfg = normCfg(cfg);
     var W = img.naturalWidth || img.width, H = img.naturalHeight || img.height;
     var out = document.createElement('canvas');
+    var body = (W && H) ? solidBounds(img, W, H) : {x:0, y:0, w:W, h:H};
     if(!cfg.enabled || !W || !H){
       out.width = W; out.height = H;
       out.getContext('2d').drawImage(img, 0, 0);
-      out._productRect = {x:0,y:0,w:W,h:H};
+      out._productRect = body;
       return Promise.resolve(out);
     }
     return ensureEngine().then(function(){
@@ -160,8 +189,8 @@
         ctx.drawImage(img, padX, padTop, W, H);
         SP.removeProduct(id);
 
-        var trimmed = trimCanvas(out, {x:padX, y:padTop, w:W, h:H});
-        trimmed._productRect = {x: padX - (trimmed._offX||0), y: padTop - (trimmed._offY||0), w:W, h:H};
+        var trimmed = trimCanvas(out, {x:padX + body.x, y:padTop + body.y, w:body.w, h:body.h});
+        trimmed._productRect = {x: padX + body.x - (trimmed._offX||0), y: padTop + body.y - (trimmed._offY||0), w:body.w, h:body.h};
         return trimmed;
       });
     });

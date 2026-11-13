@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HBN 取色工具</title>
 <style>
-  @font-face{font-family:"ShopeeNotoSans (content)";font-weight:300;src:url("../fonts/ShopeeNotoSans(content)-Regular.ttf") format("truetype")}
-  @font-face{font-family:"ShopeeNotoSans (content)";font-weight:400;src:url("../fonts/ShopeeNotoSans(content)-Medium.ttf") format("truetype")}
-  @font-face{font-family:"ShopeeNotoSans (content)";font-weight:700;src:url("../fonts/ShopeeNotoSans(content)-Bold.ttf") format("truetype")}
+  @font-face{font-family:"ShopeeNotoSans (content)";font-weight:300;src:url("../fonts/ShopeeNotoSans(content)-Regular.woff2") format("woff2"),url("../fonts/ShopeeNotoSans(content)-Regular.ttf") format("truetype")}
+  @font-face{font-family:"ShopeeNotoSans (content)";font-weight:400;src:url("../fonts/ShopeeNotoSans(content)-Medium.woff2") format("woff2"),url("../fonts/ShopeeNotoSans(content)-Medium.ttf") format("truetype")}
+  @font-face{font-family:"ShopeeNotoSans (content)";font-weight:700;src:url("../fonts/ShopeeNotoSans(content)-Bold.woff2") format("woff2"),url("../fonts/ShopeeNotoSans(content)-Bold.ttf") format("truetype")}
   :root{
     --bg:#f5f6f8; --card:#fff; --text:#1f2328; --muted:#6b7280; --line:#e5e7eb; --accent:#ee4d2d; --ok:#15803d;
   }
@@ -48,9 +48,20 @@
   nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent)}
   section[hidden]{display:none}
   td .mini{font-size:11px;color:var(--muted);padding:2px 0 0;border:0}
-  /* simulator */
-  .sim{display:grid;grid-template-columns:minmax(260px,340px) 1fr;gap:16px;align-items:start}
-  @media (max-width:900px){ .sim{grid-template-columns:1fr} }
+  /* simulator: preview stays in the work area; editing tools sit at the right */
+  .sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:16px;align-items:start}
+  .sim > div:first-child{grid-column:2;grid-row:1}
+  .sim > div:last-child{grid-column:1;grid-row:1;min-width:0}
+  /* Keep controls and color values visible, while removing explanatory copy. */
+  .sim > div:first-child .card h2,
+  .sim > div:first-child .card .note,
+  .sim > div:first-child .opts .d{display:none}
+  .sim > div:first-child .card:last-child{display:none}
+  @media (max-width:900px){
+    .sim{grid-template-columns:1fr}
+    .sim > div:first-child{grid-column:1;grid-row:2}
+    .sim > div:last-child{grid-column:1;grid-row:1}
+  }
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
   .card h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:600}
   .field{display:flex;align-items:center;gap:8px;margin-bottom:10px}
@@ -106,7 +117,7 @@
 <header>
   <div>
     <h1>HBN Banner 取色工具</h1>
-    <div class="path">固定資料夾：同目錄下的 hbndemo/（E:\GitHub\shopee\color\hbndemo）</div>
+    <div class="path">固定資料夾：同目錄下的 hbndemo/（E:\GitHub\shopee2\color\hbndemo）</div>
   </div>
   <div class="bar" id="pickBar">
     <button id="btnPick" class="primary">選擇 / 載入 hbn 資料夾</button>

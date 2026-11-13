@@ -4,16 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Float Editor</title>
-<!-- SheetJS for parsing banwords.xlsx -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Banword rules are compiled from banwords.xlsx into a small local JSON file. -->
 <!-- External JS plugins: keep rules/features in separate JS files so future updates only require replacing the JS file. -->
 <script src="js/banwords-engine-hbn.js"></script>
 <script src="js/editor-plugin.js"></script>
 <style>
 /* ── Load local font: ShopeeNotoSans(content)-Medium.ttf ── */
-@font-face{font-family:'ShopeeNotoSans';src:url('fonts/ShopeeNotoSans(content)-Medium.ttf') format('truetype');font-weight:400 500 700}
-@font-face{font-family:'ShopeeNotoSansReg';src:url('fonts/ShopeeNotoSans(content)-Regular.ttf') format('truetype');font-weight:400}
-@font-face{font-family:'ShopeeNotoSansBold';src:url('fonts/ShopeeNotoSans(content)-Bold.ttf') format('truetype');font-weight:700}
+@font-face{font-family:'ShopeeNotoSans';src:url('fonts/ShopeeNotoSans(content)-Medium.woff2') format('woff2'),url('fonts/ShopeeNotoSans(content)-Medium.ttf') format('truetype');font-weight:400 500 700}
+@font-face{font-family:'ShopeeNotoSansReg';src:url('fonts/ShopeeNotoSans(content)-Regular.woff2') format('woff2'),url('fonts/ShopeeNotoSans(content)-Regular.ttf') format('truetype');font-weight:400}
+@font-face{font-family:'ShopeeNotoSansBold';src:url('fonts/ShopeeNotoSans(content)-Bold.woff2') format('woff2'),url('fonts/ShopeeNotoSans(content)-Bold.ttf') format('truetype');font-weight:700}
 
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -377,9 +376,9 @@ const FONT_SHOPEE = FONT_SNS;
 // Pre-load font so canvas renders correctly
 async function loadFonts(){
   try{
-    const fMed=new FontFace('ShopeeNotoSans','url(fonts/ShopeeNotoSans(content)-Medium.ttf)',{weight:'500'});
-    const fReg=new FontFace('ShopeeNotoSansReg','url(fonts/ShopeeNotoSans(content)-Regular.ttf)',{weight:'400'});
-    const fBold=new FontFace('ShopeeNotoSansBold','url(fonts/ShopeeNotoSans(content)-Bold.ttf)',{weight:'700'});
+    const fMed=new FontFace('ShopeeNotoSans','url(fonts/ShopeeNotoSans(content)-Medium.woff2)',{weight:'500'});
+    const fReg=new FontFace('ShopeeNotoSansReg','url(fonts/ShopeeNotoSans(content)-Regular.woff2)',{weight:'400'});
+    const fBold=new FontFace('ShopeeNotoSansBold','url(fonts/ShopeeNotoSans(content)-Bold.woff2)',{weight:'700'});
     await Promise.allSettled([fMed.load(),fReg.load(),fBold.load()]).then(rs=>{
       rs.forEach(r=>{ if(r.status==='fulfilled') document.fonts.add(r.value); });
     });
@@ -517,18 +516,18 @@ window.addEventListener('load',async()=>{
 });
 
 // ══════════════════════════════════════════════
-// BANWORDS — load xlsx & audit
+// BANWORDS — load local rules & audit
 // ══════════════════════════════════════════════
 let _bwReady=false;
 
 async function loadBanwords(){
   const el=document.getElementById('bw-status');
   try{
-    const res=await fetch('banwords.xlsx');
-    if(!res.ok) throw new Error('fetch failed');
-    const buf=await res.arrayBuffer();
-    if(window.banwordEngine && window.XLSX){
-      window.banwordEngine.loadRulesFromExcelArrayBuffer(buf);
+    const res=await fetch('banwords.rules.json?v=20261113-slim1',{cache:'default'});
+    if(!res.ok) throw new Error('rules fetch failed');
+    const rules=await res.json();
+    if(window.banwordEngine && Array.isArray(rules)){
+      window.banwordEngine.setRules(rules);
       _bwReady=true;
       const n=window.banwordEngine.getRules().length;
       el.textContent=`✓ 禁用語規則已載入（${n} 條）`;

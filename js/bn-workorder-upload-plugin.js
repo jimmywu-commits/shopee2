@@ -10,6 +10,7 @@
   'use strict';
 
   var XLSX_URLS = [
+    'js/vendor/xlsx-0.18.5.full.min.js?v=20261113-slim1',
     'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
   ];

@@ -1,0 +1,1624 @@
+{
+  "generatedAt": "2026-11-13T05:15:33.326Z",
+  "origin": "http://127.0.0.1:62462",
+  "fontSourceMode": "current WOFF2-first references",
+  "initial": {
+    "requestCount": 160,
+    "localResponseBytes": 52902828,
+    "fontWoff2Bytes": 47850144,
+    "fontWoff2Requests": 6,
+    "fontTtfBytes": 0,
+    "fontTtfRequests": 0,
+    "loaded": {
+      "layouts": 28,
+      "loadedFrames": 2,
+      "deferredFrames": 26,
+      "pendingPreviewCount": 26,
+      "optionalGlobals": {
+        "shadow": "undefined",
+        "logoTrim": "undefined",
+        "xlsx": "undefined",
+        "banwordRules": 68
+      },
+      "backgroundLibrary": "object"
+    },
+    "deferredFilesLoaded": [],
+    "xlsxOrRulesWorkbookLoaded": [],
+    "backgroundManifestsLoaded": []
+  },
+  "banwordBehavior": "優惠券",
+  "floating": {
+    "status": "✓ 禁用語規則已載入（68 條）",
+    "rules": 68,
+    "xlsx": "undefined"
+  },
+  "fontMetrics": [
+    {
+      "weight": "300",
+      "widths": [
+        {
+          "sample": "SHOPEE BODA 2026",
+          "ttfWidth": 342.07989501953125,
+          "woffWidth": 342.07989501953125,
+          "difference": 0
+        },
+        {
+          "sample": "繁體中文推薦字色，圓標 CTA！123",
+          "ttfWidth": 518.5919189453125,
+          "woffWidth": 518.5919189453125,
+          "difference": 0
+        }
+      ]
+    },
+    {
+      "weight": "400",
+      "widths": [
+        {
+          "sample": "SHOPEE BODA 2026",
+          "ttfWidth": 343.35992431640625,
+          "woffWidth": 343.35992431640625,
+          "difference": 0
+        },
+        {
+          "sample": "繁體中文推薦字色，圓標 CTA！123",
+          "ttfWidth": 519.552001953125,
+          "woffWidth": 519.552001953125,
+          "difference": 0
+        }
+      ]
+    },
+    {
+      "weight": "700",
+      "widths": [
+        {
+          "sample": "SHOPEE BODA 2026",
+          "ttfWidth": 359.39190673828125,
+          "woffWidth": 359.39190673828125,
+          "difference": 0
+        },
+        {
+          "sample": "繁體中文推薦字色，圓標 CTA！123",
+          "ttfWidth": 526.783935546875,
+          "woffWidth": 526.783935546875,
+          "difference": 0
+        }
+      ]
+    }
+  ],
+  "afterOpeningBackgroundLibrary": {
+    "manifestRequests": [
+      "http://127.0.0.1:62462/bgimg/index.json?t=1794546931839",
+      "http://127.0.0.1:62462/bgimg/brand.json?t=1794546931839"
+    ]
+  },
+  "externalRequests": [],
+  "runtimeErrors": [],
+  "optionalMissingFiles": [
+    {
+      "path": "/bgimg/brand.json?t=1794546931839",
+      "status": 404
+    }
+  ],
+  "unexpectedServerErrors": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:62462/index.html",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/ig-shopee-logo-card.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/shopee-tour.js?v=20261029-7",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/index.js?t=1794546924699",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/bn-editor-plugin.js?t=1794546924702",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/bn-state-plugin.js?t=1794546924702",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/bn-workorder-upload-plugin.js?t=1794546924702",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/bn-bg-library-plugin.js?t=1794546924702",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/bn-whatsnew-plugin.js?t=1794546924702",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/JBP%E7%B7%A8%E8%BC%AF%E5%99%A8%E4%BD%BF%E7%94%A8%E8%AA%AA%E6%98%8E%E6%9B%B8.pdf",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.config.css?t=1794546924782",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.config.css?t=1794546924783",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/HBN_%E6%A9%AB%E5%BC%8FLOGO.config.css?t=1794546924783",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/HBN_%E6%96%B9%E5%BC%8FLOGO.config.css?t=1794546924783",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/ddcard%E6%96%B9logo.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/ddcard%E6%A9%ABlogo.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Coin_pageBN_APP%E6%96%B9LOGO.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Coin_pageBN_APP%E6%A9%ABLOGO.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/FB_POST_%E6%96%B9LOGO.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/FB_POST_%E6%A9%ABLOGO.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SCBN_APP.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/LPBN_APP%E6%96%B9LOGO.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/LPBN_APP%E6%A9%ABLOGO.config.css?t=1794546924784",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/LPBN_PC%E6%96%B9LOGO.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/LPBN_PC%E6%A9%ABLOGO.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/LPBN_APP.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/LPBN_PC.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/%E6%B4%BB%E5%8B%95%E7%B8%BD%E8%A6%BD_%E6%96%B9%E5%BC%8FLOGO.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/%E6%B4%BB%E5%8B%95%E7%B8%BD%E8%A6%BD_%E6%A9%AB%E5%BC%8FLOGO.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/ddcard%E7%84%A1logo.config.css?t=1794546924785",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SBA_APP%E6%96%B9LOGO.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SBA_APP%E6%A9%ABLOGO.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SBA_PC.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/AMS%20BN-%E6%96%B9logo.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/AMS%20BN-%E6%A9%ABlogo.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/AR.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/AR_LOGO.config.css?t=1794546924786",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/%E9%A6%96%E9%A0%81LOGO%E7%89%86.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Search_Image1logo.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Search_Image2logo.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Search_Image3logo.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SearchICON_LOGO.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SearchICON_PRODUCT.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/SearchICON_TEXT.config.css?t=1794546924787",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546924788",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546924792",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/HBN_%E6%A9%AB%E5%BC%8FLOGO.html?bnid=1794546924783&t=1794546924795",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/HBN_%E6%96%B9%E5%BC%8FLOGO.html?bnid=1794546924784&t=1794546924797",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/ddcard%E6%96%B9logo.html?bnid=1794546924785&t=1794546924802",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/ddcard%E6%A9%ABlogo.html?bnid=1794546924786&t=1794546924806",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Coin_pageBN_APP%E6%96%B9LOGO.html?bnid=1794546924787&t=1794546924810",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/Coin_pageBN_APP%E6%A9%ABLOGO.html?bnid=1794546924788&t=1794546924814",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/banwords-engine-hbn.js?v=20261113-slim1",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/changelog.json?t=1794546924927",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925038",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925039",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925040",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925041",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925042",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925043",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925044",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546925046",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/banwords.rules.json?v=20261113-slim1",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925070",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925072",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/HBN_%E6%A9%AB%E5%BC%8FLOGO.html?bnid=1794546924783&t=1794546925075",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/HBN_%E6%96%B9%E5%BC%8FLOGO.html?bnid=1794546924784&t=1794546925078",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/ddcard%E6%96%B9logo.html?bnid=1794546924785&t=1794546925081",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925173",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925176",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925270",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925273",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925369",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925372",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925478",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925481",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925571",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925575",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925685",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925687",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925775",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925778",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925869",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925871",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546925958",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546925961",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926056",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926059",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926148",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926151",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926241",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926243",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926331",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926335",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926430",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926433",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926517",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926519",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926612",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926614",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926698",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926700",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926790",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926793",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546926882",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546926884",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927020",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927022",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927110",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927112",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927203",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927206",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927295",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927297",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927388",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927391",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927483",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927485",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927579",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927582",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927692",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927695",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927813",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927817",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546927935",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546927939",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546928056",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546928060",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546928174",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546928177",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546928294",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546928298",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.html?bnid=1794546924781&t=1794546928418",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.html?bnid=1794546924782&t=1794546928421",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546929244",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/layout-runtime.js?t=1794546929249",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.css",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%A9%ABlogo%E6%8E%92%E7%89%88.config.css",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.css",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/IG%E6%96%B9logo%E6%8E%92%E7%89%88.config.css",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Regular.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Bold.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Medium.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/ig%E7%94%A8%E8%9D%A6%E7%9A%AElogo%E5%8D%A1%E7%89%87.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_r.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_w.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/ig%E7%94%A8%E8%9D%A6%E7%9A%AElogo%E5%8D%A1%E7%89%87.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_r.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_w.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Regular.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Bold.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Medium.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_r.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_w.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_r.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_w.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_r.png?v=1794546929477",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_w.png?v=1794546929477",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_w.png?v=1794546929479",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/html/img/tag/IG_r.png?v=1794546929481",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Regular.ttf",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Medium.ttf",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Bold.ttf",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/index.json?t=1794546931839",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/brand.json?t=1794546931839",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-1-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-2-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-3-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-4-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-5-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-6-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-7-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-8-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-9-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-10-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-11-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-12-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-1-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-2-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-3-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-4-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-5-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-6-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-7-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-8-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-9-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-10-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-11-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-12-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-13-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-14-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-15-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-16-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-17-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-18-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-19-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-20-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-21-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-22-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-23-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-24-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-25-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-26-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-27-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-28-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-29-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-32-hbn.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-33-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-34-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-35-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-36-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/EL/hbn/EL-Mockup-37-hbn.png",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-1-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-2-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-3-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-4-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-5-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-6-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-7-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-8-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-9-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-10-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-11-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-12-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-13-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-1-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-2-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-3-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-4-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-5-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-7-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-8-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-9-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-10-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-11-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-12-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-13-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-14-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-15-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-16-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-17-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-18-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/bgimg/Fashion/hbn/Fashion-Mockup-19-hbn.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/floating.html",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/banwords-engine-hbn.js",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/editor-plugin.js",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/product-zoom-plugin.js",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/js/manual-plugin.js",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/%E7%A8%8B%E5%BC%8F%E6%AA%94%E6%A1%88/floating_manual.jpg",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Medium.woff2",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/banwords.rules.json?v=20261113-slim1",
+      "local": true
+    },
+    {
+      "url": "http://127.0.0.1:62462/fonts/ShopeeNotoSans(content)-Bold.woff2",
+      "local": true
+    }
+  ],
+  "served": [
+    {
+      "relative": "index.html",
+      "bytes": 215573
+    },
+    {
+      "relative": "html/img/ig-shopee-logo-card.png",
+      "bytes": 50555
+    },
+    {
+      "relative": "js/shopee-tour.js",
+      "bytes": 62857
+    },
+    {
+      "relative": "js/index.js",
+      "bytes": 1356
+    },
+    {
+      "relative": "js/bn-editor-plugin.js",
+      "bytes": 269807
+    },
+    {
+      "relative": "js/bn-state-plugin.js",
+      "bytes": 65115
+    },
+    {
+      "relative": "js/bn-workorder-upload-plugin.js",
+      "bytes": 23559
+    },
+    {
+      "relative": "JBP編輯器使用說明書.pdf",
+      "bytes": 912154
+    },
+    {
+      "relative": "js/bn-bg-library-plugin.js",
+      "bytes": 83410
+    },
+    {
+      "relative": "js/bn-whatsnew-plugin.js",
+      "bytes": 8115
+    },
+    {
+      "relative": "html/IG橫logo排版.config.css",
+      "bytes": 3548
+    },
+    {
+      "relative": "html/IG方logo排版.config.css",
+      "bytes": 3521
+    },
+    {
+      "relative": "html/HBN_橫式LOGO.config.css",
+      "bytes": 3988
+    },
+    {
+      "relative": "html/HBN_方式LOGO.config.css",
+      "bytes": 3991
+    },
+    {
+      "relative": "html/ddcard方logo.config.css",
+      "bytes": 3390
+    },
+    {
+      "relative": "html/ddcard橫logo.config.css",
+      "bytes": 3371
+    },
+    {
+      "relative": "html/Coin_pageBN_APP方LOGO.config.css",
+      "bytes": 7094
+    },
+    {
+      "relative": "html/Coin_pageBN_APP橫LOGO.config.css",
+      "bytes": 3751
+    },
+    {
+      "relative": "html/FB_POST_方LOGO.config.css",
+      "bytes": 3222
+    },
+    {
+      "relative": "html/FB_POST_橫LOGO.config.css",
+      "bytes": 3217
+    },
+    {
+      "relative": "html/SCBN_APP.config.css",
+      "bytes": 4514
+    },
+    {
+      "relative": "html/LPBN_APP方LOGO.config.css",
+      "bytes": 3211
+    },
+    {
+      "relative": "html/LPBN_APP橫LOGO.config.css",
+      "bytes": 3211
+    },
+    {
+      "relative": "html/LPBN_PC方LOGO.config.css",
+      "bytes": 3214
+    },
+    {
+      "relative": "html/LPBN_PC橫LOGO.config.css",
+      "bytes": 3211
+    },
+    {
+      "relative": "html/LPBN_APP.config.css",
+      "bytes": 659
+    },
+    {
+      "relative": "html/LPBN_PC.config.css",
+      "bytes": 659
+    },
+    {
+      "relative": "html/活動總覽_方式LOGO.config.css",
+      "bytes": 3938
+    },
+    {
+      "relative": "html/活動總覽_橫式LOGO.config.css",
+      "bytes": 3989
+    },
+    {
+      "relative": "html/ddcard無logo.config.css",
+      "bytes": 3007
+    },
+    {
+      "relative": "html/SBA_APP方LOGO.config.css",
+      "bytes": 4020
+    },
+    {
+      "relative": "html/SBA_APP橫LOGO.config.css",
+      "bytes": 3729
+    },
+    {
+      "relative": "html/SBA_PC.config.css",
+      "bytes": 2826
+    },
+    {
+      "relative": "html/AMS BN-方logo.config.css",
+      "bytes": 3336
+    },
+    {
+      "relative": "html/AMS BN-橫logo.config.css",
+      "bytes": 3334
+    },
+    {
+      "relative": "html/AR.config.css",
+      "bytes": 770
+    },
+    {
+      "relative": "html/AR_LOGO.config.css",
+      "bytes": 589
+    },
+    {
+      "relative": "html/首頁LOGO牆.config.css",
+      "bytes": 1059
+    },
+    {
+      "relative": "html/Search_Image1logo.config.css",
+      "bytes": 2187
+    },
+    {
+      "relative": "html/Search_Image2logo.config.css",
+      "bytes": 3319
+    },
+    {
+      "relative": "html/Search_Image3logo.config.css",
+      "bytes": 3462
+    },
+    {
+      "relative": "html/SearchICON_LOGO.config.css",
+      "bytes": 1576
+    },
+    {
+      "relative": "html/SearchICON_PRODUCT.config.css",
+      "bytes": 1359
+    },
+    {
+      "relative": "html/SearchICON_TEXT.config.css",
+      "bytes": 1287
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/HBN_橫式LOGO.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/HBN_方式LOGO.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/ddcard方logo.html",
+      "bytes": 2232
+    },
+    {
+      "relative": "html/ddcard橫logo.html",
+      "bytes": 2232
+    },
+    {
+      "relative": "html/Coin_pageBN_APP方LOGO.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/Coin_pageBN_APP橫LOGO.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "js/banwords-engine-hbn.js",
+      "bytes": 30326
+    },
+    {
+      "relative": "js/changelog.json",
+      "bytes": 1547
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "banwords.rules.json",
+      "bytes": 10342
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG橫logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "html/IG方logo排版.html",
+      "bytes": 2290
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "js/layout-runtime.js",
+      "bytes": 287960
+    },
+    {
+      "relative": "html/IG橫logo排版.css",
+      "bytes": 2132
+    },
+    {
+      "relative": "html/IG橫logo排版.config.css",
+      "bytes": 3548
+    },
+    {
+      "relative": "html/IG方logo排版.css",
+      "bytes": 2134
+    },
+    {
+      "relative": "html/IG方logo排版.config.css",
+      "bytes": 3521
+    },
+    {
+      "relative": "fonts/ShopeeNotoSans(content)-Regular.woff2",
+      "bytes": 7869628
+    },
+    {
+      "relative": "html/img/ig用蝦皮logo卡片.png",
+      "bytes": 50555
+    },
+    {
+      "relative": "fonts/ShopeeNotoSans(content)-Bold.woff2",
+      "bytes": 8090380
+    },
+    {
+      "relative": "fonts/ShopeeNotoSans(content)-Medium.woff2",
+      "bytes": 7965064
+    },
+    {
+      "relative": "html/img/ig用蝦皮logo卡片.png",
+      "bytes": 50555
+    },
+    {
+      "relative": "html/img/tag/IG_r.png",
+      "bytes": 58043
+    },
+    {
+      "relative": "fonts/ShopeeNotoSans(content)-Regular.woff2",
+      "bytes": 7869628
+    },
+    {
+      "relative": "fonts/ShopeeNotoSans(content)-Bold.woff2",
+      "bytes": 8090380
+    },
+    {
+      "relative": "fonts/ShopeeNotoSans(content)-Medium.woff2",
+      "bytes": 7965064
+    },
+    {
+      "relative": "html/img/tag/IG_w.png",
+      "bytes": 57037
+    },
+    {
+      "relative": "html/img/tag/IG_r.png",
+      "bytes": 58043
+    },
+    {
+      "relative": "html/img/tag/IG_w.png",
+      "bytes": 57037
+    },
+    {
+      "relative": "html/img/tag/IG_r.png",
+      "bytes": 58043
+    },
+    {
+      "relative": "html/img/tag/IG_r.png",
+      "bytes": 58043
+    },
+    {
+      "relative": "html/img/tag/IG_w.png",
+      "bytes": 57037
+    },
+    {
+      "relative": "html/img/tag/IG_w.png",
+      "bytes": 57037
+    },
+    {
+      "relative": "html/img/tag/IG_r.png",
+      "bytes": 58043
+    },
+    {
+      "relative": "html/img/tag/IG_w.png",
+      "bytes": 57037
+    },
+    {
+      "relative": "html/img/tag/IG_w.png",
+      "bytes": 57037
+    },
+    {
+      "relative": "html/img/tag/IG_r.png",
+      "bytes": 58043
+    }
+  ],
+  "valid": true
+}

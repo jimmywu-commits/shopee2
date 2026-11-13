@@ -34,6 +34,9 @@
   var IDB_DB = 'bn_editor_state_db';
   var IDB_STORE = 'states';
   var IDB_KEY = 'current';
+  var BANWORD_RULES_URL = 'banwords.rules.json?v=20261113-slim1';
+  var XLSX_PARSER_URL = 'js/vendor/xlsx-0.18.5.full.min.js?v=20261113-slim1';
+  var xlsxParserPromise = null;
 
   function openStateDb(){
     return new Promise(function(resolve, reject){
@@ -462,7 +465,7 @@
     wrap.querySelector('#_bn_excelManualInput').addEventListener('change', function(e){
       var file = e.target.files && e.target.files[0];
       if(!file) return;
-      file.arrayBuffer().then(function(buf){
+      ensureXLSXParser().then(function(){ return file.arrayBuffer(); }).then(function(buf){
         var rules = global.banwordEngine.loadRulesFromExcelArrayBuffer(buf);
         showToast('已手動載入 banwords.xlsx（'+( Array.isArray(rules)?rules.length:0 )+'條）','ok',2200);
         wrap.style.display = 'none';
@@ -474,44 +477,46 @@
     return wrap;
   }
 
-  function loadBanwordsExcel(){
-    if(!global.banwordEngine) return;
-    /* 先確保 SheetJS (XLSX) 已載入 */
-    function doFetch(){
-      fetch('banwords.xlsx', {cache:'no-store'})
-      .then(function(r){
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        return r.arrayBuffer();
-      })
-      .then(function(buf){
-        var rules = global.banwordEngine.loadRulesFromExcelArrayBuffer(buf);
-        console.log('[BNState] banwords loaded:', Array.isArray(rules)?rules.length:0, '條');
-        bridgeInputs();
-      })
-      .catch(function(err){
-        console.warn('[BNState] banwords.xlsx 載入失敗', err);
-        ensureExcelPicker().style.display = 'block';
-        bridgeInputs();
-      });
-    }
-    if(global.XLSX){
-      doFetch();
-    } else {
-      var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js';
-      s.onload = doFetch;
-      s.onerror = function(){
-        console.warn('[BNState] SheetJS CDN 載入失敗，嘗試本機...');
-        doFetch(); /* 試試看，可能已有其他方式載入 */
+  function ensureXLSXParser(){
+    if(global.XLSX && global.XLSX.read) return Promise.resolve(global.XLSX);
+    if(xlsxParserPromise) return xlsxParserPromise;
+    xlsxParserPromise = new Promise(function(resolve, reject){
+      var script = document.createElement('script');
+      script.src = XLSX_PARSER_URL;
+      script.onload = function(){
+        if(global.XLSX && global.XLSX.read) resolve(global.XLSX);
+        else { xlsxParserPromise = null; reject(new Error('SheetJS parser failed to initialize')); }
       };
-      document.head.appendChild(s);
-    }
+      script.onerror = function(){ xlsxParserPromise = null; reject(new Error('無法載入本機試算表解析器')); };
+      document.head.appendChild(script);
+    });
+    return xlsxParserPromise;
+  }
+
+  function loadBanwordsRules(){
+    if(!global.banwordEngine) return;
+    fetch(BANWORD_RULES_URL, {cache:'default'})
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    })
+    .then(function(rules){
+      if(!Array.isArray(rules)) throw new Error('banwords.rules.json 格式錯誤');
+      var loaded = global.banwordEngine.setRules(rules);
+      console.log('[BNState] banwords loaded:', Array.isArray(loaded)?loaded.length:0, '條');
+      bridgeInputs();
+    })
+    .catch(function(err){
+      console.warn('[BNState] banwords.rules.json 載入失敗', err);
+      ensureExcelPicker().style.display = 'block';
+      bridgeInputs();
+    });
   }
 
   function initBanwords(){
-    /* 強制載入最新 banwords engine，避免瀏覽器沿用舊快取，造成修正後看起來仍沒生效。 */
-    loadScript('js/banwords-engine-hbn.js?t=' + Date.now(), function(){
-      loadBanwordsExcel();
+    /* 正式頁面使用本地規則 JSON，不在每次載入時下載 880KB XLSX parser 再解整本工單。 */
+    loadScript('js/banwords-engine-hbn.js?v=20261113-slim1', function(){
+      loadBanwordsRules();
     });
   }
 
