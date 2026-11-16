@@ -2082,7 +2082,9 @@
             x: st.x !== undefined ? st.x : 50,
             y: st.y !== undefined ? st.y : 50,
             slab: !!st.slab,
-            _initialized: !!st._initialized
+            _initialized: !!st._initialized,
+            _userEdited: !!st._userEdited,
+            _orient: st._orient || ''
           };
         });
 
@@ -2137,7 +2139,9 @@
               x: st.x !== undefined ? parseFloat(st.x) : (prev.x !== undefined ? prev.x : 50),
               y: st.y !== undefined ? parseFloat(st.y) : (prev.y !== undefined ? prev.y : 50),
               slab: !!st.slab,
-              _initialized: st._initialized !== false
+              _initialized: st._initialized !== false,
+              _userEdited: !!st._userEdited,
+              _orient: st._orient || ''
             };
           });
         }
@@ -2188,6 +2192,16 @@
         var ifrEl = document.getElementById('iframe-' + id);
         if(!ifrEl) return;
         var st = getBgState(String(id));
+        /* 2026-11-14：上傳 LOGO 後版位會換成同系列的另一張（例如 HBN_橫式LOGO → HBN_方式LOGO），
+           背景狀態是照版位存的，新版位就回到預設、看起來像「背景調整被重置」。
+           新版位還沒被手動調整過時，沿用同系列版位手動調好的縮放／位置。 */
+        if(!st._userEdited){
+          var sib = findBgVariantSibling(String(id), ifrEl);
+          if(sib){
+            ['src','fit','sizeBasis','positionMode','scale','x','y','slab'].forEach(function(k){ if(sib[k] !== undefined) st[k] = sib[k]; });
+            st._initialized = true; st._userEdited = true; st._orient = sib._orient;
+          }
+        }
         var sources = window._bnBgOrientationSources || null;
         if(!st.src && sources){
           st.src = getBgLayoutOrientation(String(id), ifrEl) === 'vertical'
@@ -2201,6 +2215,9 @@
           }
         }
         bgSendToIframe(ifrEl, String(id));
+        /* 2026-11-14：懶載入的版位在 buildBgPanels 跑的當下還沒有 src（取不到 bnid），
+           所以沒建「背景圖調整」面板，滑鼠移上去不會出現。就緒時補建。 */
+        try{ buildBgPanels(true); }catch(_){ }
       };
       /* 精準同步單一 iframe 背景。下載圖片會用這個，避免廣播全部版位時
          把尚未 ready 或 id 取不到的 iframe 送成 null 背景。 */
@@ -2358,10 +2375,12 @@
         var img = new Image();
         img.onload = function(){
           var c = document.createElement('canvas');
-          c.width = 5; c.height = 5;
+          /* 2026-11-14 修正：原本把整張圖縮成 5×5 取平均（＝全圖平均色，偏淺），改成真的取左上角 8×8 */
+          var sn = Math.max(1, Math.min(8, img.naturalWidth || img.width || 1, img.naturalHeight || img.height || 1));
+          c.width = sn; c.height = sn;
           var ctx = c.getContext('2d');
-          ctx.drawImage(img, 0, 0, 5, 5);
-          var d = ctx.getImageData(0, 0, 5, 5).data;
+          ctx.drawImage(img, 0, 0, sn, sn, 0, 0, sn, sn);
+          var d = ctx.getImageData(0, 0, sn, sn).data;
           var r=0,g=0,b=0;
           for(var i=0;i<d.length;i+=4){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; }
           var n=d.length/4;
@@ -2435,9 +2454,82 @@
       }
 
       /* 建立每個 preview-block 右側的背景圖控制面板 */
-      function buildBgPanels(){
+      /* ── 2026-11-14 背景調整：同系列沿用＋版位連動 ───────────────── */
+      function bgVariantKey(id){
+        var n = String(getLayoutNameById(id) || '').replace(/\.html$/i,'');
+        return n.replace(/[_\s-]*(橫式|方式|橫|方|無)?logo(排版)?$/i,'').toLowerCase();
+      }
+      function findBgVariantSibling(id, ifrEl){
+        var key = bgVariantKey(id);
+        if(!key) return null;
+        var orient = getBgLayoutOrientation(id, ifrEl);
+        var found = null;
+        Object.keys(_bgStates).some(function(other){
+          if(String(other) === String(id)) return false;
+          var o = _bgStates[other];
+          if(!o || !o._userEdited || !o.src || bgVariantKey(other) !== key) return false;
+          if(o._orient && o._orient !== orient) return false;
+          found = o; return true;
+        });
+        return found;
+      }
+      function bgLayoutLinked(id){
+        try{ return typeof window._bnIsProductLayoutLocked === 'function' ? !!window._bnIsProductLayoutLocked(String(id)) : false; }catch(_){ return false; }
+      }
+      /* 調整一張版位的背景（舊存檔先換算成 center 座標，避免第一次調整跳位）。done(st, pre) 在真的改完後呼叫。 */
+      function editBgFor(tid, tIfr, update, done){
+        var st=getBgState(tid),src=st.src;
+        function commit(){
+          if(getBgState(tid)!==st||st.src!==src)return;
+          var pre={scale:Number(st.scale),x:Number(st.x),y:Number(st.y),fit:st.fit,sizeBasis:st.sizeBasis};
+          update(st);st._initialized=true;st._userEdited=true;st._orient=getBgLayoutOrientation(tid,tIfr);
+          bgBroadcastOne(tid);markStateDirty();
+          if(done)done(st,pre);
+        }
+        if(st.slab||st.positionMode==='center'){commit();return;}
+        if(Number(st.x)===50&&Number(st.y)===50){st.positionMode='center';commit();return;}
+        getBgNatural(src).then(function(image){
+          if(getBgState(tid)!==st||st.src!==src)return;
+          if(st.positionMode!=='center'){
+            var size=getBgContainerSize(tIfr,image),iw,ih,factor;
+            if(st.fit==='cover'||st.fit==='contain'){factor=(st.fit==='cover'?Math.max:Math.min)(size.w/image.w,size.h/image.h);iw=image.w*factor;ih=image.h*factor;}
+            else if(st.fit==='height100'||st.fit==='auto'&&st.sizeBasis==='height'){ih=size.h*st.scale/100;iw=ih*image.w/image.h;}
+            else{iw=size.w*st.scale/100;ih=iw*image.h/image.w;}
+            st.x=50+(Number(st.x)-50)*(1-iw/size.w);st.y=50+(Number(st.y)-50)*(1-ih/size.h);st.positionMode='center';
+          }
+          commit();
+        }).catch(function(error){console.warn('[bn-editor] 無法讀取背景尺寸，保留原構圖',error);});
+      }
+      /* 版位連動中的其他版位（同方向背景）跟著做同樣的調整：縮放等比例、位置同樣位移量、原尺寸／填滿同步。
+         各版位原本的預設位置（例如 SCBN、FB_POST 的特殊擺法）不會被蓋掉，只疊加這次的變化量。 */
+      function propagateBgEdit(sourceId, sourceIfr, st, pre){
+        if(!bgLayoutLinked(sourceId)) return;
+        var orient = getBgLayoutOrientation(sourceId, sourceIfr);
+        var ratio = pre.scale ? Number(st.scale)/pre.scale : 1;
+        var dx = Number(st.x) - pre.x, dy = Number(st.y) - pre.y;
+        var fitChanged = st.fit !== pre.fit || st.sizeBasis !== pre.sizeBasis;
+        if(!fitChanged && ratio === 1 && !dx && !dy) return;
+        document.querySelectorAll('.preview-block iframe').forEach(function(tIfr){
+          var tid = getIfrBnid(tIfr);
+          if(!tid || String(tid) === String(sourceId)) return;
+          if(isNoImageBackgroundLayout(tid, tIfr) || !bgLayoutLinked(tid)) return;
+          var t = _bgStates[tid];
+          if(!t || !t.src || !!t.slab !== !!st.slab) return;
+          if(getBgLayoutOrientation(tid, tIfr) !== orient) return;
+          editBgFor(String(tid), tIfr, function(ts){
+            if(fitChanged){ ts.fit = st.fit; ts.sizeBasis = st.sizeBasis; }
+            if(ratio !== 1) ts.scale = Math.max(1, Math.min(700, Math.round(Number(ts.scale) * ratio)));
+            ts.x = Math.max(-100, Math.min(200, Number(ts.x) + dx));
+            ts.y = Math.max(-100, Math.min(200, Number(ts.y) + dy));
+          });
+        });
+      }
+
+      /* skipExisting：懶載入版位就緒時只補建新面板，不重送其他版位的背景 */
+      function buildBgPanels(skipExisting){
         document.querySelectorAll('.preview-block').forEach(function(block){
           if(block.querySelector('.bn-bg-panel')) {
+            if(skipExisting) return;
             /* 背景圖上傳/暫存載入後，面板已存在時仍要補送目前背景到 iframe。 */
             var existedIframe = block.querySelector('iframe');
             var existedId = existedIframe ? getIfrBnid(existedIframe) : null;
@@ -2450,6 +2542,8 @@
           if(/SearchICON/i.test(ifrEl.getAttribute('src') || '')) return;
           var id = getIfrBnid(ifrEl);
           if(!id) return;
+          /* 2026-11-14：首頁LOGO牆等固定白底、不吃背景圖的版位，也不需要「背景圖調整」面板 */
+          if(isNoImageBackgroundLayout(id, ifrEl)) return;
 
           var panel = document.createElement('div');
           panel.className = 'bn-bg-panel';
@@ -2505,22 +2599,11 @@
           }
 
           function editBackground(update){
-            var st=getBgState(id),src=st.src;
-            function commit(){if(getBgState(id)!==st||st.src!==src)return;update(st);st._initialized=true;syncPanelValues();bgBroadcastOne(id);markStateDirty();}
-            if(st.slab||st.positionMode==='center'){commit();return;}
-            if(Number(st.x)===50&&Number(st.y)===50){st.positionMode='center';commit();return;}
-            /* 舊存檔先換算成同一個視覺中心，才切換新的位移單位，避免第一次調整跳位。 */
-            getBgNatural(src).then(function(image){
-              if(getBgState(id)!==st||st.src!==src)return;
-              if(st.positionMode!=='center'){
-                var size=getBgContainerSize(ifrEl,image),iw,ih,factor;
-                if(st.fit==='cover'||st.fit==='contain'){factor=(st.fit==='cover'?Math.max:Math.min)(size.w/image.w,size.h/image.h);iw=image.w*factor;ih=image.h*factor;}
-                else if(st.fit==='height100'||st.fit==='auto'&&st.sizeBasis==='height'){ih=size.h*st.scale/100;iw=ih*image.w/image.h;}
-                else{iw=size.w*st.scale/100;ih=iw*image.h/image.w;}
-                st.x=50+(Number(st.x)-50)*(1-iw/size.w);st.y=50+(Number(st.y)-50)*(1-ih/size.h);st.positionMode='center';
-              }
-              commit();
-            }).catch(function(error){console.warn('[bn-editor] 無法讀取背景尺寸，保留原構圖',error);});
+            /* 2026-11-14：改用共用的 editBgFor，改完再連動到其他「版位連動」中的版位 */
+            editBgFor(id, ifrEl, update, function(st, pre){
+              syncPanelValues();
+              propagateBgEdit(id, ifrEl, st, pre);
+            });
           }
 
           panel.querySelectorAll('[data-fit]').forEach(function(btn){
@@ -2533,10 +2616,28 @@
             var v = Math.max(1,Math.min(700,parseInt(this.value)||100));
             editBackground(function(st){st.scale=v;});
           });
-          panel.querySelectorAll('.bg-nudge').forEach(function(button){button.addEventListener('click',function(event){
-            var axis=button.dataset.axis,delta=Number(button.dataset.delta)*(event.shiftKey?5:1);
-            editBackground(function(st){st[axis]=Math.max(-100,Math.min(200,Number(st[axis])+delta));});
-          });});
+          panel.querySelectorAll('.bg-nudge').forEach(function(button){
+            function nudge(shift){
+              var axis=button.dataset.axis,delta=Number(button.dataset.delta)*(shift?5:1);
+              editBackground(function(st){st[axis]=Math.max(-100,Math.min(200,Number(st[axis])+delta));});
+            }
+            /* 2026-11-14：長按連續移動（按住 0.4 秒後每 0.08 秒移一次）；長按過後放開的那次 click 不再多移一格 */
+            var holdTimer=null,repeatTimer=null,repeated=false;
+            function stopHold(){clearTimeout(holdTimer);clearInterval(repeatTimer);holdTimer=repeatTimer=null;}
+            button.addEventListener('pointerdown',function(event){
+              if(event.button!==0)return;
+              repeated=false;stopHold();
+              var shift=event.shiftKey;
+              holdTimer=setTimeout(function(){
+                repeatTimer=setInterval(function(){repeated=true;nudge(shift);},80);
+              },400);
+            });
+            ['pointerup','pointerleave','pointercancel','blur'].forEach(function(t){button.addEventListener(t,stopHold);});
+            button.addEventListener('click',function(event){
+              if(repeated){repeated=false;return;}
+              nudge(event.shiftKey);
+            });
+          });
 
           /* 面板的滑桿一定要跟目前實際套用的 scale/x/y 同步，不能一直停在
              HTML 寫死的 100/50/50——不然使用者滑動之前看到的數字，

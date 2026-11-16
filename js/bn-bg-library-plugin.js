@@ -6,7 +6,9 @@
     src = src.replace(/^\.?\/*/, '');
     src = src.replace(/^bgimgn\//i, '');
     src = src.replace(/^bgimg\//i, '');
-    return IMG_BASE_URL.replace(/\/?$/, '/') + src;
+    /* 2026-11-14：這支函式在外掛 IIFE 外面，讀不到 IIFE 裡的 IMG_BASE_URL（會丟 ReferenceError），改直接讀設定。 */
+    var base = (window.BN_BG_LIBRARY_CONFIG && window.BN_BG_LIBRARY_CONFIG.imgBaseUrl) || 'bgimg/';
+    return base.replace(/\/?$/, '/') + src;
   }
 
 /* BN Background Library Plugin
@@ -221,12 +223,18 @@
       if(!/^data:/i.test(src)) img.crossOrigin = 'anonymous';
       img.onload = function(){
         try{
+          /* 2026-11-14 修正：原本 drawImage(img,0,0,1,1) 是把「整張圖」縮成 1 個像素，
+             取到的是全圖平均色（混到 KV 的亮部，所以總是比邊緣淺一點），不是左上角。
+             改成真的取左上角：原尺寸畫出左上 8×8 像素再平均（避開單一雜訊點）。 */
+          var n = Math.max(1, Math.min(8, img.naturalWidth || img.width || 1, img.naturalHeight || img.height || 1));
           var c = document.createElement('canvas');
-          c.width = 1;
-          c.height = 1;
+          c.width = n;
+          c.height = n;
           var ctx = c.getContext('2d', { willReadFrequently:true });
-          ctx.drawImage(img, 0, 0, 1, 1);
-          var d = ctx.getImageData(0, 0, 1, 1).data;
+          ctx.drawImage(img, 0, 0, n, n, 0, 0, n, n);
+          var px = ctx.getImageData(0, 0, n, n).data, sr = 0, sg = 0, sb = 0, cnt = 0;
+          for(var i = 0; i < px.length; i += 4){ sr += px[i]; sg += px[i+1]; sb += px[i+2]; cnt++; }
+          var d = [Math.round(sr/cnt), Math.round(sg/cnt), Math.round(sb/cnt)];
           resolve(rgbToHex(d[0], d[1], d[2]));
         }catch(_){ resolve(null); }
       };
@@ -901,7 +909,14 @@
       var idn = ((el.id||'') + ' ' + (el.name||'') + ' ' + (el.className||'') + ' ' + (el.accept||'')).toLowerCase();
       return idn.indexOf('bg') !== -1 || idn.indexOf('背景') !== -1;
     }
-    var btn = el.closest && el.closest('button,label,a,div,span');
+    /* 2026-11-14 修正：原本 closest('button,label,a,div,span') 會往上找到包住整個側欄的 div，
+       那個 div 的文字裡同時有「背景圖」「上傳」，點側欄或畫面空白處就被當成上傳入口、打開背景圖庫。
+       改成只認按鈕類元素；div／span 只有本身就是短文字的小入口（不含其他按鈕或輸入框）才算。 */
+    var btn = el.closest && el.closest('button,label,a,[role="button"]');
+    if(!btn && el.matches && el.matches('div,span')){
+      var ownText = (el.textContent || '').trim();
+      if(ownText.length && ownText.length <= 24 && !el.querySelector('button,input,select,textarea,iframe')) btn = el;
+    }
     if(!btn) return false;
     var text = (btn.textContent || btn.getAttribute('title') || btn.getAttribute('aria-label') || '').trim();
     var meta = ((btn.id||'') + ' ' + (btn.className||'') + ' ' + text).toLowerCase();
