@@ -2301,7 +2301,10 @@ function applySharedCanvasBg(v, silent){
   return applySharedCanvasBgNow(v, false);
 }
 function applySharedCanvasBgNow(v, silent){
-  var changed = !colorState || colorState.canvasBg !== v;
+  /* 2026-11-14：色碼大小寫不同（#0097E8 vs #0097e8）其實是同一個底色。以前會被當成換底，
+     觸發自動重算文字色，把使用者手動指定的主標／副標色洗掉。統一小寫再比較。 */
+  v = String(v).toLowerCase();
+  var changed = !colorState || String(colorState.canvasBg || '').toLowerCase() !== v;
   if(colorState) colorState.canvasBg = v;
   if(window._bnLastUserColorState) window._bnLastUserColorState.canvasBg = v;
   if(window._bnFrozenColorData) window._bnFrozenColorData.canvasBg = v;

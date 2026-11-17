@@ -872,6 +872,14 @@ if (_isBodaHost) {
   /* 「還原建議色」是使用者明確要回到建議色：通知 BODA 時帶 reset，主頁會解除暫存檔配色鎖，
      不然鎖會把建議色擋回暫存檔的顏色。副標選項也一起回到建議的那個候選。 */
   let _userResetPending = false;
+  /* BODA：只有使用者在工具裡真的動手（點、拖、輸入）之後 1.5 秒內的變化才回報主頁。
+     工具剛顯示／重畫時算出的狀態（例如 CTA「沒有手動」＝空值）不能送回去，
+     否則會把活動頁／曝光資源手動指定的 CTA、主標、副標洗回自動。 */
+  let _bodaUserActAt = 0;
+  ['pointerdown', 'input', 'change', 'keydown'].forEach(function (t) {
+    document.addEventListener(t, function (e) { if (e.isTrusted) _bodaUserActAt = Date.now(); }, true);
+  });
+  const _bodaUserActive = () => !_isBodaHost || (Date.now() - _bodaUserActAt) < 1500;
   const _resetBtn = $('#simReset');
   if (_resetBtn) {
     const _origReset = _resetBtn.onclick;
@@ -897,7 +905,8 @@ if (_isBodaHost) {
       const mainKey = mainHex + (manualMain ? '|manual' : '');
       if (mainKey !== _lastPostedMain) {
         _lastPostedMain = mainKey;
-        if (!fromParent) {
+        /* BODA：自動建議色不送回主頁（主標／副標以活動頁、曝光資源為準），只送手動改色與「重設」 */
+        if (!fromParent && (!_isBodaHost || manualMain || _userResetPending || _bodaUserActive())) {
           window.parent.postMessage({ type: 'wo-color-tool-main-text', mainText: mainHex, manual: manualMain, reset: _userResetPending, linked: _bodaLinked }, '*');
         }
       }
@@ -910,7 +919,7 @@ if (_isBodaHost) {
       const subKey = subHex + (manualSub ? '|manual' : '');
       if (subKey !== _lastPostedSub) {
         _lastPostedSub = subKey;
-        if (!fromParent) {
+        if (!fromParent && (!_isBodaHost || manualSub || _userResetPending || _bodaUserActive())) {
           window.parent.postMessage({ type: 'wo-color-tool-sub-text', subText: subHex, manual: manualSub, reset: _userResetPending, linked: _bodaLinked }, '*');
         }
       }
@@ -920,7 +929,7 @@ if (_isBodaHost) {
     const cta = manual ? hex(simState.ov.ctabg) : '';
     if (cta !== _lastPostedCta) {
       _lastPostedCta = cta;
-      if (!_settingCtaFromParent && !_settingBgFromParent) {
+      if (!_settingCtaFromParent && !_settingBgFromParent && (manual || _bodaUserActive())) {
         window.parent.postMessage({ type: 'wo-color-tool-cta', ctaBg: cta, manual: manual, linked: _bodaLinked }, '*');
       }
     }
@@ -929,7 +938,7 @@ if (_isBodaHost) {
     const ctaText = manualText ? hex(simState.ov.ctatxt) : '';
     if (ctaText !== _lastPostedCtaText) {
       _lastPostedCtaText = ctaText;
-      if (!_settingCtaTextFromParent && !_settingCtaFromParent && !_settingBgFromParent) {
+      if (!_settingCtaTextFromParent && !_settingCtaFromParent && !_settingBgFromParent && (manualText || _bodaUserActive())) {
         window.parent.postMessage({ type: 'wo-color-tool-cta-text', ctaText: ctaText, manual: manualText, linked: _bodaLinked }, '*');
       }
     }
@@ -950,6 +959,315 @@ if (_isBodaHost) {
       }
     }
   };
+}
+
+/* ========== BODA 嵌入版的畫面調整（2026-11-14）==========
+   只在 ?host=boda（嵌在 BOD 工具裡）時生效；單獨開啟取色工具時完全不變。
+   1. 標題改「活動頁設定色票」，拿掉固定資料夾說明。
+   2. 底色不能改（由曝光資源／工單帶入），上方說明「已自動帶入先前色票，簡易確認即可」。
+   3. 手動換任何顏色（色塊、副標候選、重設手動修改）前先跳警示：會影響曝光資源與活動頁先前的設計。
+   4. 價格、選單參考不再重複顯示底色；選單改成三欄（未選擇／已選擇／下拉選單），每欄上面文字色、下面底色。
+   5. 色卡下方的說明小字、CR 值都拿掉。
+   6. 右側下方加「取色工具完成」（橘色實心），「輸出 CSV 檔」改橘框橘字。 */
+if (_isBodaHost) {
+  document.documentElement.classList.add('boda-embed');
+  const bodaCss = document.createElement('style');
+  bodaCss.textContent = [
+    'html.boda-embed header .path{display:none}',
+    'html.boda-embed #simRandom{display:none}',
+    'html.boda-embed #simBg{pointer-events:none;opacity:.85}',
+    'html.boda-embed #simBgHex{pointer-events:none;color:var(--muted)}',
+    'html.boda-embed .boda-autonote{margin:0 0 10px;padding:8px 10px;border-radius:8px;background:#fff4ef;color:#9a3412;font-size:12px;line-height:1.6}',
+    'html.boda-embed .role .cr{display:none}',
+    'html.boda-embed .role .cr:has(.exp-note){display:block}',
+    'html.boda-embed .role[data-key="bg"] .box{cursor:default}',
+    'html.boda-embed .role[data-key="bg"] .box::after{display:none}',
+    'html.boda-embed .role[data-key="bg"] .box input{display:none}',
+    /* 選單三欄：每欄上面文字、下面底色 */
+    /* 所有色卡同寬（上排、價格、選單都一樣） */
+    'html.boda-embed .roles{grid-template-columns:repeat(auto-fill,140px)}',
+    'html.boda-embed .role .top{flex-wrap:wrap;gap:2px 6px}',
+    /* 頁面標題選單：3 個大框（未選擇／已選擇／下拉選單），框內上面文字、下面底色 */
+    'html.boda-embed #rfMenuRoles{display:grid;grid-template-columns:repeat(3,auto);grid-template-rows:none;grid-auto-flow:row;gap:8px;justify-content:start}',
+    'html.boda-embed .boda-mgrp{border:1px solid var(--line,#dde3e1);border-radius:10px;padding:8px;background:rgba(0,0,0,.015)}',
+    'html.boda-embed .boda-mgrp-h{font-size:12px;font-weight:700;margin:0 0 6px;display:flex;align-items:center;gap:6px}',
+    'html.boda-embed .boda-mgrp-h .n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#ee4d2d;color:#fff;font-size:11px}',
+    'html.boda-embed .boda-mgrp .roles{display:grid;grid-template-columns:108px;gap:6px;margin:0}',
+    'html.boda-embed .refs{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}',
+    'html.boda-embed .refs > .ref{min-width:0}',
+    'html.boda-embed #rfPriceRoles{grid-template-columns:repeat(2,140px)}',
+    'html.boda-embed .refs{grid-template-columns:auto auto;justify-content:start}',
+    /* 完成／下載按鈕：比照曝光資源 */
+    'html.boda-embed .boda-out-bar{display:flex;flex-direction:column;gap:8px}',
+    'html.boda-embed #bodaColorDone{width:100%;min-height:36px;background:#ee4d2d;border-color:#ee4d2d;color:#fff;font-weight:700}',
+    'html.boda-embed #bodaColorDone:hover{background:#d8401f;border-color:#d8401f}',
+    'html.boda-embed #simCsv{width:100%;min-height:36px;background:#fff;border:1px solid #ee4d2d;color:#ee4d2d;font-weight:700}',
+    'html.boda-embed #simCsv:hover{background:#fff3ef}',
+    'html.boda-embed #simReset{width:100%}',
+    /* 警示視窗 */
+    '#bodaWarn{position:fixed;inset:0;z-index:9999;background:rgba(15,23,22,.45);display:flex;align-items:center;justify-content:center;padding:16px}',
+    '#bodaWarn .p{width:400px;max-width:100%;background:#fff;color:#1f2328;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.25);padding:22px 22px 18px}',
+    '#bodaWarn h3{margin:0 0 8px;font-size:16px}',
+    '#bodaWarn p{margin:0;font-size:13px;line-height:1.7;color:#4b5563}',
+    '#bodaWarn .f{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}',
+    '#bodaWarn .ok{background:#ee4d2d;border-color:#ee4d2d;color:#fff}'
+  ].join('\n');
+  document.head.appendChild(bodaCss);
+
+  /* 1. 標題 */
+  const h1 = document.querySelector('header h1');
+  if (h1) h1.textContent = '活動頁設定色票';
+  document.title = '活動頁設定色票';
+
+  /* 2. 底色不可編輯＋說明 */
+  ['#simBg', '#simBgHex'].forEach(sel => { const el = $(sel); if (el) { el.readOnly = true; el.tabIndex = -1; el.title = '底色由曝光資源／工單帶入，這裡不能修改'; } });
+  const inputCard = $('#simBg') && $('#simBg').closest('.card');
+  if (inputCard && !inputCard.querySelector('.boda-autonote')) {
+    const note = document.createElement('div');
+    note.className = 'boda-autonote';
+    note.textContent = '已自動帶入先前色票，簡易確認即可。';
+    inputCard.insertBefore(note, inputCard.firstChild);
+  }
+
+  /* 3. 換色前警示 */
+  function bodaWarn(onYes) {
+    const old = document.getElementById('bodaWarn'); if (old) old.remove();
+    const w = document.createElement('div');
+    w.id = 'bodaWarn';
+    w.innerHTML = '<div class="p" role="dialog" aria-modal="true"><h3>確認要調整顏色嗎？</h3>' +
+      '<p>此調整會影響到曝光資源與活動頁先前的設計。</p>' +
+      '<div class="f"><button type="button" data-v="0">取消</button><button type="button" class="ok" data-v="1">確認調整</button></div></div>';
+    w.addEventListener('click', e => {
+      const b = e.target.closest('[data-v]');
+      if (!b) return;
+      w.remove();
+      if (b.getAttribute('data-v') === '1') onYes();
+    });
+    document.body.appendChild(w);
+    try { w.querySelector('.ok').focus(); } catch (e) {}
+  }
+  let _bodaWarnPass = false;   /* 按了「確認調整」後重新觸發同一個動作，這次放行 */
+  function guard(e, rerun) {
+    if (_bodaWarnPass) { _bodaWarnPass = false; return; }
+    e.preventDefault(); e.stopImmediatePropagation();
+    bodaWarn(() => { _bodaWarnPass = true; rerun(); });
+  }
+  document.addEventListener('click', function (e) {
+    const t = e.target;
+    /* 色塊選色器（底色那張已停用） */
+    const inp = t.closest && t.closest('.role .box input[type=color]');
+    if (inp) {
+      const card = inp.closest('.role');
+      if (card && card.dataset.key === 'bg') { e.preventDefault(); return; }
+      guard(e, () => { try { inp.showPicker ? inp.showPicker() : inp.click(); } catch (_) { inp.click(); } });
+      return;
+    }
+    /* 副標候選（點了已選中的那個不算換色） */
+    const opt = t.closest && t.closest('#simOpts .opt');
+    if (opt && !opt.classList.contains('sel')) { guard(e, () => opt.click()); return; }
+    /* 還原建議色（單一色卡的 ↺）與「重設手動修改」 */
+    const undo = t.closest && t.closest('.role .undo, #simReset');
+    if (undo) { guard(e, () => undo.click()); return; }
+  }, true);
+
+  /* 4.／5. 參考區：拿掉重複的底色、選單三欄、名稱改成未選擇／已選擇／下拉選單；色卡小字拿掉 */
+  const menuTitle = $('#rfMenu') && $('#rfMenu').closest('.ref') && $('#rfMenu').closest('.ref').querySelector('h3');
+  if (menuTitle) menuTitle.textContent = '頁面標題選單';
+  /* 5. 左邊價格參考改名 */
+  const priceTitle = $('#rfPrice') && $('#rfPrice').closest('.ref') && $('#rfPrice').closest('.ref').querySelector('h3');
+  if (priceTitle) priceTitle.textContent = '系統價格配色';
+  /* 4. 頁面標題選單：3 個大框（未選擇／已選擇／下拉選單），同一種按鈕的文字＋底色放同一框 */
+  const MENU_GROUPS = [
+    { n: 1, label: '類別（未選擇）', txt: 'btnNormalTxt', bg: 'btnNormal' },
+    { n: 2, label: '類別（已選擇）', txt: 'btnHoverTxt', bg: 'btnHover' },
+    { n: 3, label: '下拉選單', txt: 'btnActiveTxt', bg: 'btnActive' }
+  ];
+  function menuGroupBoxes() {
+    const host = $('#rfMenuRoles');
+    if (!host) return [];
+    if (host.dataset.bodaGroups !== '1') {
+      host.innerHTML = '';
+      host.dataset.bodaGroups = '1';
+      MENU_GROUPS.forEach(function (g) {
+        const box = document.createElement('div');
+        box.className = 'boda-mgrp';
+        box.innerHTML = '<div class="boda-mgrp-h"><span class="n">' + g.n + '</span><span></span></div><div class="roles"></div>';
+        box.querySelector('.boda-mgrp-h span:last-child').textContent = g.label;
+        host.appendChild(box);
+      });
+    }
+    return Array.prototype.slice.call(host.querySelectorAll('.boda-mgrp > .roles'));
+  }
+  renderRefs = function (r) {
+    $('#rfPrice').style.background = hex(r.priceBg);
+    $('#rfOld').style.color = hex(r.grey); $('#rfNew').style.color = hex(r.priceNew);
+    roleCards($('#rfPriceRoles'), [['grey', '原價灰', r.grey, r.priceBg, 3, ''], ['priceNew', '活動價', r.priceNew, r.priceBg, 3, '']]);
+    $('#rfMenu').style.background = hex(r.menuBg);
+    const m = $('#rfMenu');
+    for (const k of ['b1', 'b3']) { const e = m.querySelector('.' + k); e.style.background = hex(r.btnNormal); e.style.color = hex(r.btnNormalTxt); }
+    const b2 = m.querySelector('.b2'); b2.style.background = hex(r.btnHover); b2.style.color = hex(r.btnHoverTxt);
+    const b4 = m.querySelector('.b4'); b4.style.background = hex(r.btnActive); b4.style.color = hex(r.btnActiveTxt);
+    /* 3 個大框，每框上面文字、下面底色 */
+    const CARD = {
+      btnNormalTxt: ['btnNormalTxt', '文字', r.btnNormalTxt, r.btnNormal, 3, ''],
+      btnNormal: ['btnNormal', '底色', r.btnNormal, null, null, ''],
+      btnHoverTxt: ['btnHoverTxt', '文字', r.btnHoverTxt, r.btnHover, 3, ''],
+      btnHover: ['btnHover', '底色', r.btnHover, r.menuBg, 3, ''],
+      btnActiveTxt: ['btnActiveTxt', '文字', r.btnActiveTxt, r.btnActive, 3, ''],
+      btnActive: ['btnActive', '底色', r.btnActive, r.menuBg, 1.5, '']
+    };
+    menuGroupBoxes().forEach(function (rb, i) {
+      const g = MENU_GROUPS[i];
+      roleCards(rb, [CARD[g.txt], CARD[g.bg]]);
+    });
+  };
+  const _bodaFillRoleCard = fillRoleCard;
+  fillRoleCard = function (d, item) {
+    _bodaFillRoleCard(d, item);
+    const cr = d.querySelector('.cr'); if (cr) cr.innerHTML = '';
+    if (item[0] === 'warn') d.querySelector('.nm').textContent = '日期';   /* 「警語」在這裡改叫「日期」 */
+  };
+
+  /* 6. 完成／下載按鈕 */
+  const csvBtn = $('#simCsv');
+  if (csvBtn && !document.getElementById('bodaColorDone')) {
+    const bar = csvBtn.parentNode;
+    bar.classList.add('boda-out-bar');
+    const done = document.createElement('button');
+    done.type = 'button';
+    done.id = 'bodaColorDone';
+    done.textContent = '取色工具完成';
+    done.title = '標記「取色工具」這一步已完成，並前往下一步';
+    done.onclick = function () {
+      let handled = false;
+      try {
+        const b = window.parent.document.querySelector('#step-actions [data-step-act="done"]');
+        if (b) { b.click(); handled = true; }
+      } catch (e) { /* 不同網域時改用訊息 */ }
+      if (!handled && window.parent !== window) window.parent.postMessage({ type: 'wo-color-tool-done' }, '*');
+    };
+    bar.insertBefore(done, bar.firstChild);
+    csvBtn.classList.remove('primary');
+  }
+  renderSim();
+}
+
+/* ========== BODA：主標／副標不再自己套規則（2026-11-15）==========
+   嵌在 BOD 工具裡（而且連動中）時，取色工具的主標、副標直接採用主頁推來的顏色
+   （＝活動頁／曝光資源目前實際用的顏色），不再依底色自己算一組再送回去。
+   以前打開取色工具，它會送回自己算的建議色，把曝光資源手動改的主標／副標洗掉。
+   - 主頁推來的顏色只對「推來當下的底色」有效；底色換了就回到規則建議色，由主頁重新推。
+   - 使用者在這裡手動改色、或點其他副標候選，仍照原本方式記成手動並通知主頁。
+   - 「重設手動修改」＝回到主頁推來的顏色。 */
+if (_isBodaHost) {
+  const _bodaBase = { main: null, mainBg: '', sub: null, subBg: '' };
+  const _bodaBgKey = sg => (sg && sg.bg) ? hex(sg.bg).toUpperCase() : '';
+  const _bodaOrigFinish = finish;
+  finish = function (sg, subRgb, ov) {
+    ov = ov || {};
+    if (!_bodaLinked || !sg) return _bodaOrigFinish(sg, subRgb, ov);
+    const bgKey = _bodaBgKey(sg);
+    const o = Object.assign({}, ov);
+    if (!o.main && _bodaBase.main && _bodaBase.mainBg === bgKey) o.main = _bodaBase.main;
+    const userPicked = !!(simState && simState.sg === sg && sg.pick && simState.subKey !== sg.pick.key);
+    if (!o.sub && !userPicked && _bodaBase.sub && _bodaBase.subBg === bgKey) subRgb = _bodaBase.sub;
+    return _bodaOrigFinish(sg, subRgb, o);
+  };
+  _applyMainFromParent = function (h) {
+    const v = validHex(h || '');
+    if (!v) return;
+    if (!simState) { _pendingMainFromParent = v; return; }
+    /* 這裡手動改的色，主頁會原樣推回來：保留成「手動」，基準色維持改之前的（重設時回到它） */
+    if (simState.ov.main && hex(simState.ov.main).toUpperCase() === v) return;
+    _settingMainFromParent = true;
+    try {
+      _bodaBase.main = hexToRgb(v);
+      _bodaBase.mainBg = _bodaBgKey(simState.sg);
+      delete simState.ov.main;
+      renderSim();
+    } finally { _settingMainFromParent = false; }
+  };
+  window._colorToolSetMainText = _applyMainFromParent;
+  _applySubFromParent = function (h) {
+    const v = validHex(h || '');
+    if (!v) return;
+    if (!simState) { _pendingSubFromParent = v; return; }
+    if (simState.ov.sub && hex(simState.ov.sub).toUpperCase() === v) return;
+    if (simState.sg && simState.sg.pick && simState.subKey !== simState.sg.pick.key) {
+      const picked = (simState.sg.options || []).find(o => o.key === simState.subKey);
+      if (picked && hex(picked.rgb).toUpperCase() === v) return;   /* 點選的副標候選被推回來 */
+    }
+    _settingSubFromParent = true;
+    try {
+      _bodaBase.sub = hexToRgb(v);
+      _bodaBase.subBg = _bodaBgKey(simState.sg);
+      delete simState.ov.sub;
+      if (simState.sg && simState.sg.pick) simState.subKey = simState.sg.pick.key;
+      renderSim();
+    } finally { _settingSubFromParent = false; }
+  };
+  window._colorToolSetSubText = _applySubFromParent;
+}
+
+/* ========== BODA：頁面標題選單配色（2026-11-15）==========
+   - 類別（已選擇）：跟活動頁「促標」實際用色（底色＋字色）；活動頁改了促標，這裡跟著換。
+     字色在促標底上看不清楚（< 3:1）時自動改深字／白字。
+   - 類別（未選擇）：維持原規則（底色略加深／加淺），可在這裡手動改，不影響前面頁面。
+   - 下拉選單：底色固定白色；字色用畫面主色——依序試主標 → 促標 → 副標，
+     第一個在白底上 ≥ 4.5:1 的就用；都不夠就把主標（主標是黑白灰時改用彩度最高的）同色相壓深到 4.5:1。
+   以上都只是預設，這裡手動改過的（ov）一律優先。 */
+if (_isBodaHost) {
+  const _bodaPromo = { bg: null, text: null };
+  const _bodaSameRgb = (a, b) => (!a && !b) || (!!a && !!b && hex(a).toUpperCase() === hex(b).toUpperCase());
+  window._colorToolSetPromo = function (bgHex, textHex) {
+    const b = validHex(bgHex || ''), t = validHex(textHex || '');
+    const nb = b ? hexToRgb(b) : null, nt = t ? hexToRgb(t) : null;
+    if (_bodaSameRgb(nb, _bodaPromo.bg) && _bodaSameRgb(nt, _bodaPromo.text)) return false;
+    _bodaPromo.bg = nb; _bodaPromo.text = nt;
+    if (simState) renderSim();
+    return true;
+  };
+  window._colorToolGetPromo = function () {
+    return { bg: _bodaPromo.bg ? hex(_bodaPromo.bg).toUpperCase() : '', text: _bodaPromo.text ? hex(_bodaPromo.text).toUpperCase() : '' };
+  };
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'wo-color-tool-set-promo') window._colorToolSetPromo(e.data.bg, e.data.text);
+  });
+  const _bodaReadableOn = function (surface) {
+    const dark = [18, 24, 39], white = [255, 255, 255];
+    return contrast(dark, surface) >= contrast(white, surface) ? dark : white;
+  };
+  const _bodaDropdownText = function (surface, main, promo, sub) {
+    const tries = [main, promo, sub].filter(Boolean);
+    for (const c of tries) if (contrast(c, surface) >= 4.5) return c;
+    /* 都不夠清楚：主標有顏色（不是黑／白／灰）就用主標同色相壓深到 4.5:1；
+       主標是白、黑、灰時改用彩度最高的那個，避免壓成一片灰。 */
+    const mh = main ? rgbToHsl(main) : null;
+    const base = (mh && mh[1] >= 15 && mh[2] > 8 && mh[2] < 92) ? main
+      : (tries.slice().sort((a, b) => rgbToHsl(b)[1] - rgbToHsl(a)[1])[0] || [0, 0, 0]);
+    const [h, s, l] = rgbToHsl(base);
+    const darker = contrast([0, 0, 0], surface) >= contrast([255, 255, 255], surface);
+    const fit = fitL(h, s, l, darker ? -1 : 1, surface, 4.5);
+    return fit.ok ? fit.rgb : (darker ? [0, 0, 0] : [255, 255, 255]);
+  };
+  const _bodaMenuFinish = finish;
+  finish = function (sg, subRgb, ov) {
+    ov = ov || {};
+    const out = _bodaMenuFinish(sg, subRgb, ov);
+    if (!out || !out.ref) return out;
+    const r = out.ref;
+    if (_bodaLinked && _bodaPromo.bg) {
+      if (!ov.btnHover) r.btnHover = _bodaPromo.bg;
+      if (!ov.btnHoverTxt) {
+        const t = _bodaPromo.text || [255, 255, 255];
+        r.btnHoverTxt = contrast(t, r.btnHover) >= 3 ? t : _bodaReadableOn(r.btnHover);
+      }
+    }
+    if (!ov.btnActive) r.btnActive = [255, 255, 255];
+    if (!ov.btnActiveTxt) r.btnActiveTxt = _bodaDropdownText(r.btnActive, out.main, (_bodaLinked && _bodaPromo.bg) || null, out.sub);
+    return out;
+  };
+  if (simState) renderSim();
 }
 </script>
 </body>

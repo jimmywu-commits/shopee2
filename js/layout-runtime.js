@@ -1627,9 +1627,12 @@
       if(e.data.layoutById || e.data.layout){
         var __bnid = getCurrentBnId();
         var __lay = (e.data.layoutById && (__bnid in e.data.layoutById) ? e.data.layoutById[__bnid] : null) || e.data.layout || null;
+        /* 首頁LOGO牆：只有在LOGO牆上親手調過（wallManual）的位置才還原，其餘一律重新置中 */
+        if(__lay && _bnHomepageLogoWallTemplate && !__lay.wallManual) __lay = null;
         if(__lay){
           box.dataset.savedLayout = JSON.stringify(__lay);
           box.dataset.manualLayout = '1';
+          if(_bnHomepageLogoWallTemplate) box.dataset.wallManual = '1';
         }
       }
       /* 先依傳來的 zOrder 給一個暫時的 z-index（zOrder 小 = 上層），讓新加入的商品
@@ -2221,6 +2224,8 @@
     }
 
     if (e.data.type === 'bn-product-layout-apply') {
+      /* 首頁LOGO牆不吃其他版位連動送來的位置（只有它自己手動調過的才算） */
+      if(_bnHomepageLogoWallTemplate && !(e.data.layout && e.data.layout.wallManual)) return;
       var pzoneApply = getProductZone(); if(!pzoneApply) return;
       var boxApply = pzoneApply.querySelector('.bn-prod-box[data-id="'+e.data.id+'"]');
       var lay = e.data.layout || {};
@@ -2680,7 +2685,8 @@
           topPct: (top - syncArea.top) / syncArea.height,
           widthPct: width / syncArea.width,
           heightPct: height / syncArea.height,
-          syncAreaMode: syncArea.mode
+          syncAreaMode: syncArea.mode,
+          wallManual: !!(_bnHomepageLogoWallTemplate && box.dataset.wallManual === '1')
         }
       };
       window.parent && window.parent.postMessage(data, '*');
@@ -2733,6 +2739,9 @@
   function layoutProducts(pzone) {
     var allBoxes = Array.from(pzone.querySelectorAll('.bn-prod-box'));
     var n = allBoxes.length; if(!n) return;
+    /* 2026-11-14：首頁LOGO牆只顯示第 1 張商品，而且固定以「單品」方式置中，
+       不跟著其他版位的三品排法；只有使用者在LOGO牆本身拖曳／縮放過才照手動位置。 */
+    if(_bnHomepageLogoWallTemplate){ allBoxes = allBoxes.slice(0, 1); n = 1; }
 
     /* 依 position 排序：0=主品，1=左配，2=右配 */
     var boxes = allBoxes.slice().sort(function(a,b){
@@ -2749,7 +2758,7 @@
        載入順序改回滿版。手動調過／已有儲存版面的商品則照原位置保留。 */
     if(_bnSearchIconProductTemplate && n === 1 && !allBoxes[0].dataset.savedLayout){
       if(allBoxes[0].dataset.manualLayout !== '1') applySearchIconProductDefault(allBoxes[0], pzone);
-      setTimeout(postAllProductLayouts, 0);
+      setTimeout(function(){ postAllProductLayouts({snapshotOnly:true}); }, 0);
       return;
     }
 
@@ -2905,7 +2914,9 @@
       ].join('');
       bnRelayoutProductBox(p.box);
     });
-    setTimeout(postAllProductLayouts, 0);
+    /* 2026-11-16：自動排版的結果只回報「快照」（存這張自己的位置），不當成連動來源。
+       懶載入的版位捲到時才自動排版，如果當成使用者拖曳，會把已排好的其他連動版位（例如 HBN）擠偏。 */
+    setTimeout(function(){ postAllProductLayouts({snapshotOnly:true}); }, 0);
   }
 
   function getProductZone(){
@@ -3248,6 +3259,7 @@
         if(c.includes('n')) t=drag.t+(drag.h-bh);
         l=Math.max(0,Math.min(drag.zw-w,l)); t=Math.max(0,Math.min(drag.zh-bh,t));
         box.dataset.manualLayout = '1';
+        if(_bnHomepageLogoWallTemplate) box.dataset.wallManual = '1';
         box.style.left=l+'px'; box.style.top=t+'px'; box.style.width=w+'px'; box.style.height=bh+'px';
         bnRelayoutProductBox(box);
         scheduleProductLayoutPost(box);
@@ -3260,6 +3272,7 @@
       if(!drag||drag.type!=='move') return;
       if(e.clientX===drag.sx&&e.clientY===drag.sy)return;drag.changed=true;
       box.dataset.manualLayout = '1';
+      if(_bnHomepageLogoWallTemplate && box.classList.contains('bn-prod-box')) box.dataset.wallManual = '1';
       box.style.left=Math.max(0,Math.min(drag.zw-drag.w,drag.l+e.clientX-drag.sx))+'px';
       box.style.top =Math.max(0,Math.min(drag.zh-drag.h,drag.t+e.clientY-drag.sy))+'px';
       scheduleProductLayoutPost(box);
@@ -3300,7 +3313,8 @@
   function getCharGradientSources(){
     var canvas = document.getElementById('canvas');
     if(!canvas) return [];
-    var sourceClasses = CHAR_GRADIENT_CLASSES.slice();
+    /* 2026-11-14：人物（含代言人照）上方不刷淡，只保留下方／左右的漸層；頭部超出時照原樣直接被畫布邊界切掉。 */
+    var sourceClasses = CHAR_GRADIENT_CLASSES.filter(function(cls){ return cls !== '漸層上'; });
     if(_bnDdcardTemplate) sourceClasses = sourceClasses.concat(CHAR_DDCARD_PROTECTION_CLASSES);
     return sourceClasses.map(function(cls){
       return canvas.querySelector('.' + cls);
@@ -3351,8 +3365,18 @@
     return grad;
   }
 
+  /* 2026-11-14：人物（人物圖、代言人照）上緣不能超過商品範圍（作圖區）上緣，跟商品一樣；
+     下方、左右維持原本可出血的規則。拖曳、縮放、自動排版、還原存檔後都會經過這裡。 */
+  function clampPersonTop(box){
+    if(!box || !box.style) return;
+    var isPerson = box.classList.contains('bn-char-box') || (box.dataset && box.dataset.endorser === 'photo');
+    if(!isPerson) return;
+    var t = parseFloat(box.style.top);
+    if(isFinite(t) && t < 0) box.style.top = '0px';
+  }
   function syncCharGradientOverlay(box){
     if(!box) return;
+    clampPersonTop(box);
     /* 簽名檔是細筆畫的透明圖，不套人物專用漸層，避免筆畫被染成背景色。 */
     if(box.dataset && box.dataset.noGradient === '1'){
       var noMask = box.querySelector('.bn-char-gradient-mask');
