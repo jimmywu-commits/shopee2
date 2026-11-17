@@ -1316,8 +1316,51 @@
   /* ══════════════════════════════════════
      初始化
   ══════════════════════════════════════ */
+  function installParentStateBridge(){
+    if(global._bnParentStateBridgeInstalled) return;
+    global._bnParentStateBridgeInstalled = true;
+    global.addEventListener('message', function(event){
+      var msg = event && event.data || {};
+      if(!msg || msg.source !== 'BODA_PARENT') return;
+      if(msg.type !== 'BODA_EXPOSURE_STATE_REQUEST' && msg.type !== 'BODA_EXPOSURE_STATE_APPLY') return;
+      var target = event.source;
+      function reply(payload){
+        if(!target || typeof target.postMessage !== 'function') return;
+        try{
+          target.postMessage(Object.assign({source:'BODA_EXPOSURE', requestId:msg.requestId || ''}, payload), '*');
+        }catch(_){ }
+      }
+      if(msg.type === 'BODA_EXPOSURE_STATE_REQUEST'){
+        global._bnStateDownloading = true;
+        var syncPromise = Promise.resolve();
+        try{
+          if(typeof global._bnSyncLayoutSnapshot === 'function') syncPromise = global._bnSyncLayoutSnapshot(900);
+        }catch(_){ syncPromise = Promise.resolve(); }
+        Promise.resolve(syncPromise).then(function(){
+          var state = collectState();
+          reply({type:'BODA_EXPOSURE_STATE_RESPONSE', ok:true, state:state});
+        }).catch(function(error){
+          reply({type:'BODA_EXPOSURE_STATE_RESPONSE', ok:false, message:(error && error.message) || String(error || 'collect failed')});
+        }).then(function(){
+          global._bnStateDownloading = false;
+        });
+        return;
+      }
+      try{
+        if(!msg.state || msg.state.version !== 1) throw new Error('不是有效的曝光資源暫存');
+        applyState(msg.state, {source:'upload', forceColors:true});
+        setTimeout(autoSave, 2300);
+        setTimeout(markDirty, 2400);
+        reply({type:'BODA_EXPOSURE_STATE_APPLIED', ok:true});
+      }catch(error){
+        reply({type:'BODA_EXPOSURE_STATE_APPLIED', ok:false, message:(error && error.message) || String(error || 'apply failed')});
+      }
+    });
+  }
+
   ready(function(){
     global._bnStatePlugin = { save:autoSave, load:autoLoad, collect:collectState, apply:applyState, toast:showToast };
+    installParentStateBridge();
 
     /* banwords */
     initBanwords();
