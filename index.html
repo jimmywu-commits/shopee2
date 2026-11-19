@@ -186,6 +186,22 @@ html, body { height: 100%; background: var(--bg0); color: var(--text);
 .layout-check-item .lc-name { font-size: 12px; font-weight: 600; flex: 1; }
 .layout-check-item .lc-size { font-size: 10px; color: var(--text3); }
 .no-layouts { padding: 12px 14px; font-size: 11px; color: var(--text3); }
+  #bn-additional-modal { position:fixed; inset:0; z-index:10050; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.62); }
+  #bn-additional-modal.show { display:flex; }
+  .bn-additional-card { width:min(430px,calc(100vw - 32px)); max-height:min(78vh,620px); display:flex; flex-direction:column; border:1px solid var(--border); border-radius:12px; background:var(--bg1); box-shadow:0 18px 60px rgba(0,0,0,.45); overflow:hidden; }
+  .bn-additional-head { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border); }
+  .bn-additional-head strong { flex:1; font-size:14px; }
+  .bn-additional-close { width:28px; height:28px; border:1px solid var(--border); border-radius:6px; background:var(--bg2); color:var(--text2); cursor:pointer; }
+  .bn-additional-note { padding:10px 16px; color:var(--text3); font-size:11px; line-height:1.6; border-bottom:1px solid var(--border); }
+  #bn-additional-options { padding:10px 10px 14px; overflow:auto; }
+  .bn-additional-option { display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:7px; cursor:pointer; }
+  .bn-additional-option:hover { background:var(--bg2); }
+  .bn-additional-option input { width:15px; height:15px; accent-color:var(--accent); }
+  .bn-additional-option span { font-size:12px; font-weight:600; }
+  .bn-additional-option small { margin-left:auto; color:var(--text3); font-size:10px; }
+  .bn-additional-foot { display:flex; justify-content:flex-end; gap:8px; padding:10px 16px; border-top:1px solid var(--border); }
+  .bn-additional-foot button { padding:6px 12px; border:1px solid var(--border); border-radius:6px; background:var(--bg2); color:var(--text2); cursor:pointer; font:inherit; font-size:11px; }
+  .bn-additional-foot .primary { border-color:var(--accent); background:var(--accent); color:#fff; }
 
 /* 右側畫版區 */
 #preview-area {
@@ -869,6 +885,7 @@ html.boda-hosted #shopee-tour-launch{display:none!important;}
           <span style="display:flex;gap:4px">
             <button onclick="checkAll(true)"  style="font-size:9px;padding:1px 5px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;text-transform:none;letter-spacing:0">全選</button>
             <button onclick="checkAll(false)" style="font-size:9px;padding:1px 5px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:pointer;text-transform:none;letter-spacing:0">全消</button>
+            <button id="bn-additional-layouts" onclick="toggleAdditionalSlots()" disabled aria-disabled="true" style="font-size:9px;padding:1px 5px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;color:var(--text2);cursor:not-allowed;text-transform:none;letter-spacing:0">＋追加版位</button>
           </span>
         </div>
         <div id="layout-checks">
@@ -886,6 +903,21 @@ html.boda-hosted #shopee-tour-launch{display:none!important;}
       </div>
     </div>
 
+  </div>
+</div>
+
+<div id="bn-additional-modal" role="dialog" aria-modal="true" aria-labelledby="bn-additional-title">
+  <div class="bn-additional-card">
+    <div class="bn-additional-head">
+      <strong id="bn-additional-title">追加版位</strong>
+      <button type="button" class="bn-additional-close" onclick="closeAdditionalSlots()" aria-label="關閉">×</button>
+    </div>
+    <div class="bn-additional-note">只選版位名稱；同一版位的方／橫 LOGO 由編輯器依 LOGO 尺寸自動判斷，不需要在這裡分開選。</div>
+    <div id="bn-additional-options"></div>
+    <div class="bn-additional-foot">
+      <button type="button" onclick="closeAdditionalSlots()">取消</button>
+      <button type="button" class="primary" onclick="applyAdditionalSlots()">追加選取版位</button>
+    </div>
   </div>
 </div>
 
@@ -1290,6 +1322,7 @@ function renderChecks() {
     } else {
       wrap.innerHTML = '<div class="no-layouts">尚未載入任何排版</div>';
     }
+      refreshAdditionalSlotsButton();
     return;
   }
   /* 只有網址指定特定版位時才固定勾選；#all 比照無 hash，保留手動勾選能力。 */
@@ -1306,6 +1339,7 @@ function renderChecks() {
       '<span class="lc-size">' + (l.w ? l.w + '×' + l.h : '') + '</span>' +
     '</label>';
   }).join('');
+    refreshAdditionalSlotsButton();
 }
 
 /* SBA APP ↔ PC 連動：APP 勾選 → PC 隨附，PC 勾選 → APP 隨附 */
@@ -1529,6 +1563,101 @@ function bnToggleProductLayoutLock(id, ev) {
   else bnRefreshProductLayoutLockUI();
 }
 window.bnToggleProductLayoutLock = bnToggleProductLayoutLock;
+
+/* ── 追加版位 ─────────────────────────────────────────
+   視窗只列「版位家族」，不把同一個 IG／HBN／LPBN_APP 的方／橫 LOGO
+   拆成兩個選項；真正要勾哪一個方向，交給 bn-editor-plugin 的 LOGO
+   比例判斷（bnAutoSelectLogoVariant）。 */
+function additionalLayoutFamilyKey(layout) {
+  var raw = String((layout && (layout.name || layout.file)) || '')
+    .replace(/\.html$/i, '')
+    .replace(/#U65b9|#U6a6b/gi, '')
+    .replace(/方|橫|横/g, '')
+    .replace(/(square|vertical|portrait|horizontal|landscape)/gi, '')
+    .replace(/無\s*logo/ig, '')
+    .replace(/logo\s*排版|logo|方式|式/ig, '')
+    .replace(/[\s_\-()（）]+/g, '')
+    .toLowerCase();
+  return raw || String((layout && (layout.name || layout.file)) || '').toLowerCase();
+}
+function additionalLayoutFamilyLabel(key, members) {
+  var first = members && members[0] ? String(members[0].name || members[0].file || '') : key;
+  first = first.replace(/\.html$/i, '')
+    .replace(/[_\-\s]*(方|橫|横|方式|無\s*logo)\s*logo(排版)?/ig, '')
+    .replace(/[_\-\s]*(square|vertical|portrait|horizontal|landscape)\s*(logo)?/ig, '')
+    .replace(/[_\-\s]+$/g, '')
+    .trim();
+  return first || key;
+}
+function getAdditionalLayoutFamilies() {
+  var groups = {};
+  loadLayouts().forEach(function (layout) {
+    if (!layout || layout.enabled === false) return;
+    var key = additionalLayoutFamilyKey(layout);
+    if (!groups[key]) groups[key] = { key: key, label: additionalLayoutFamilyLabel(key, [layout]), members: [] };
+    groups[key].members.push(layout);
+  });
+  return Object.keys(groups).map(function (key) { return groups[key]; }).filter(function (group) {
+    /* 已經有一個成員被選取，就代表這個版位已在目前清單，不再列為追加候選。 */
+    return !group.members.some(function (layout) { return getLayoutCheckedValue(layout); });
+  }).sort(function (a, b) { return a.label.localeCompare(b.label, 'zh-Hant'); });
+}
+function refreshAdditionalSlotsButton() {
+  var button = document.getElementById('bn-additional-layouts');
+  if (!button) return;
+  var count = getAdditionalLayoutFamilies().length;
+  button.disabled = count === 0;
+  button.setAttribute('aria-disabled', count === 0 ? 'true' : 'false');
+  button.style.cursor = count === 0 ? 'not-allowed' : 'pointer';
+  button.title = count ? '追加目前尚未顯示的版位' : '目前沒有可追加的版位';
+}
+function toggleAdditionalSlots() {
+  var modal = document.getElementById('bn-additional-modal');
+  var options = document.getElementById('bn-additional-options');
+  if (!modal || !options) return;
+  var groups = getAdditionalLayoutFamilies();
+  if (!groups.length) { refreshAdditionalSlotsButton(); return; }
+  options.innerHTML = groups.map(function (group, index) {
+    var detail = group.members.length > 1 ? '方／橫自動判斷' : '單一版位';
+    return '<label class="bn-additional-option">' +
+      '<input type="checkbox" data-additional-family="' + esc(group.key) + '" id="bn-additional-' + index + '">' +
+      '<span>' + esc(group.label) + '</span><small>' + esc(detail) + '</small></label>';
+  }).join('');
+  modal.classList.add('show');
+}
+function closeAdditionalSlots() {
+  var modal = document.getElementById('bn-additional-modal');
+  if (modal) modal.classList.remove('show');
+}
+function applyAdditionalSlots() {
+  var modal = document.getElementById('bn-additional-modal');
+  if (!modal) return;
+  var groups = getAdditionalLayoutFamilies();
+  var wanted = {};
+  modal.querySelectorAll('input[data-additional-family]:checked').forEach(function (input) {
+    wanted[input.getAttribute('data-additional-family')] = true;
+  });
+  if (!Object.keys(wanted).length) { closeAdditionalSlots(); return; }
+  markLayoutSelectionManual();
+  var next = {};
+  groups.forEach(function (group) {
+    if (!wanted[group.key]) return;
+    /* 先把整個家族交給 LOGO 自動配對；沒有方／橫配對的單一版位也能直接加入。 */
+    group.members.forEach(function (layout) { next[layout.id] = true; });
+  });
+  setLayoutChecks(next);
+  closeAdditionalSlots();
+  if (typeof window._bnSyncLogoLayoutSelection === 'function') {
+    Promise.resolve(window._bnSyncLogoLayoutSelection()).then(function () {
+      refreshAdditionalSlotsButton();
+    });
+  } else {
+    refreshAdditionalSlotsButton();
+  }
+}
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape') closeAdditionalSlots();
+});
 
 function renderPreviews() {
   var _hashKw = parseHashKeywords(location.hash);
@@ -4064,6 +4193,20 @@ if(IS_BODA) document.addEventListener('DOMContentLoaded',function(){
 
 <script>
 /* BODA 工單串接：接收外層 index.html 的 postMessage */
+function bnAckWorkorderOverviewAssets(messageId, ok, applied, error) {
+  if (!messageId || !window.parent || window.parent === window) return;
+  try {
+    window.parent.postMessage({
+      source: 'BODA_EXPOSURE',
+      type: 'BODA_EXPOSURE_ASSETS_APPLIED',
+      messageId: messageId,
+      ok: ok !== false,
+      applied: !!applied,
+      error: error ? String(error) : ''
+    }, '*');
+  } catch (_) {}
+}
+window._bnAckWorkorderOverviewAssets = bnAckWorkorderOverviewAssets;
 window.addEventListener('message', function (e) {
   if (!e.data) return;
   if (e.data.type === 'wo-level' && e.data.level && typeof window._bnApplyLevel === 'function') {
@@ -4097,11 +4240,19 @@ window.addEventListener('message', function (e) {
     window._bnPendingWorkorderExposureSpec = e.data.spec || {};
   }
   if (e.data.type === 'wo-workorder-overview-assets' && typeof window._bnApplyWorkorderAssets === 'function') {
-    Promise.resolve(window._bnApplyWorkorderAssets(e.data.assets || {})).catch(function (err) { console.warn('工單曝光資源素材訊息處理失敗', err); });
+    (function (messageId, assets) {
+      Promise.resolve(window._bnApplyWorkorderAssets(assets || {})).then(function (applied) {
+        bnAckWorkorderOverviewAssets(messageId, true, applied);
+      }).catch(function (err) {
+        console.warn('工單曝光資源素材訊息處理失敗', err);
+        bnAckWorkorderOverviewAssets(messageId, false, false, err && (err.message || err));
+      });
+    })(e.data.messageId || '', e.data.assets || {});
   } else if (e.data.type === 'wo-workorder-overview-assets') {
     /* Shopee 核心外掛是動態載入，若 BODA 訊息先到，先留最後一筆，
        待 bn-editor-plugin.js 完成後再套用，不影響獨立工具流程。 */
     window._bnPendingWorkorderAssets = e.data.assets || {};
+    window._bnPendingWorkorderAssetsMessageId = e.data.messageId || '';
   }
   if (e.data.type === 'wo-bg' && isHexCanvasBg(e.data.color)) {
     applySharedCanvasBg(e.data.color, true);

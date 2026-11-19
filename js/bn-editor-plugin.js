@@ -66,6 +66,10 @@
 .bn-endorser-editing .hbn-plugin-modal [data-act="shadow"]{display:none!important}
 #bn-download-bar{padding:10px 14px;border-top:1px solid var(--border,#30363d);flex-shrink:0}
 .bn-dl-btn{display:block;width:100%;padding:9px;background:linear-gradient(135deg,#1d4ed8,#0d47a1);border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .12s}
+.bn-ms-terms-line{display:flex;align-items:flex-start;gap:5px;margin:0 0 7px;color:var(--text3,#8b949e);font-size:10px;line-height:1.45}
+.bn-ms-terms-line input{width:13px;height:13px;margin:1px 0 0;accent-color:#ee4d2d;flex:0 0 auto}
+.bn-ms-terms-line label{cursor:pointer}.bn-ms-terms-line a{color:#60a5fa;text-decoration:underline;cursor:pointer}
+.bn-dl-btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 .bn-dl-btn:hover{opacity:.88}
 .bn-dl-btn:disabled{opacity:.35;cursor:not-allowed}
 .bn-dl-progress{font-size:10px;color:var(--text3,#6e7681);text-align:center;margin-top:5px;min-height:14px}
@@ -4052,12 +4056,22 @@
       var sidebar=document.getElementById('sidebar');
       if(!sidebar||document.getElementById('bn-download-bar'))return;
       var bar=document.createElement('div');bar.id='bn-download-bar';
-      bar.innerHTML='<button class="bn-dl-btn" id="bn-dl-all">⬇ 下載全部勾選畫版</button><div class="bn-dl-progress" id="bn-dl-progress"></div>';
+      bar.innerHTML='<div class="bn-ms-terms-line"><input type="checkbox" id="bn-ms-terms-check" aria-label="我已閱讀並接受蝦皮資產使用條款"><label for="bn-ms-terms-check">我已閱讀並接受 <a href="#ms-terms-modal" id="bn-ms-terms-link">「蝦皮資產使用條款」</a></label></div><button class="bn-dl-btn" id="bn-dl-all">⬇ 下載全部勾選畫版</button><div class="bn-dl-progress" id="bn-dl-progress"></div>';
       /* 加到 sidebar 最底部（sidebar-scroll 下方）*/
       var scroll=document.getElementById('sidebar-scroll');
       if(scroll && scroll.nextSibling) sidebar.insertBefore(bar, scroll.nextSibling);
       else sidebar.appendChild(bar);
-      document.getElementById('bn-dl-all').addEventListener('click',downloadAll);
+      var check=document.getElementById('bn-ms-terms-check'), link=document.getElementById('bn-ms-terms-link'), button=document.getElementById('bn-dl-all');
+      function parentTermsAccepted(){ try { return !!(window.parent && typeof window.parent.msAssetTermsAccepted === 'function' ? window.parent.msAssetTermsAccepted() : true); } catch(_) { return true; } }
+      function parentTermsOpen(){ try { if(window.parent && typeof window.parent.msOpenAssetTerms === 'function') window.parent.msOpenAssetTerms(); } catch(_) {} }
+      function parentTermsSet(value){ try { if(window.parent && typeof window.parent.msSetAssetTermsAccepted === 'function') window.parent.msSetAssetTermsAccepted(!!value); } catch(_) {} }
+      function syncTerms(){ var ok=parentTermsAccepted(); check.checked=ok; button.disabled=!ok; }
+      check.addEventListener('click',function(e){ if(!parentTermsAccepted()){ e.preventDefault(); parentTermsOpen(); } });
+      check.addEventListener('change',function(){ if(!check.checked){ parentTermsSet(false); syncTerms(); } });
+      link.addEventListener('click',function(e){ e.preventDefault(); parentTermsOpen(); });
+      window.addEventListener('storage',syncTerms);
+      button.addEventListener('click',function(e){ if(!parentTermsAccepted()){ e.preventDefault(); parentTermsOpen(); return; } downloadAll(); });
+      syncTerms();
     }
 
     function _bnClone(obj){
@@ -4187,6 +4201,10 @@
 
     function downloadAll(_layoutSynced){
       if(_layoutSynced!==true&&window._bnDownloadBusy)return;
+      if(window.parent && typeof window.parent.msRequireAssetTerms === 'function' && !window.parent.msRequireAssetTerms()){
+        _bnSettleCollect(new Error('尚未同意蝦皮資產使用條款'));
+        return;
+      }
       /* 字數硬擋／內容警語未確認：直接擋在 modal，不呼叫 setProgress，
          避免 setProgress 內的 bnUpdateDownloadOverlay 通知外層 BOD A
          顯示「LOADING · 曝光資源下載」浮層。 */
@@ -4957,8 +4975,17 @@
     /* jbpbn.html 可能在外層訊息先到時尚未完成外掛載入，補套用最後一筆暫存訊息。 */
     if(window._bnPendingWorkorderAssets){
       var pendingWorkorderAssets = window._bnPendingWorkorderAssets;
+      var pendingWorkorderAssetsMessageId = window._bnPendingWorkorderAssetsMessageId || '';
       delete window._bnPendingWorkorderAssets;
-      setTimeout(function(){ window._bnApplyWorkorderAssets(pendingWorkorderAssets); }, 0);
+      delete window._bnPendingWorkorderAssetsMessageId;
+      setTimeout(function(){
+        Promise.resolve(window._bnApplyWorkorderAssets(pendingWorkorderAssets)).then(function(applied){
+          if(window._bnAckWorkorderOverviewAssets) window._bnAckWorkorderOverviewAssets(pendingWorkorderAssetsMessageId, true, applied);
+        })['catch'](function(err){
+          console.warn('工單曝光資源暫存素材訊息處理失敗', err);
+          if(window._bnAckWorkorderOverviewAssets) window._bnAckWorkorderOverviewAssets(pendingWorkorderAssetsMessageId, false, false, err && (err.message || err));
+        });
+      }, 0);
     }
   });
 })();
